@@ -35,12 +35,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NAlert, NButton, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
-import { useAuth } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
-const { getCookie } = useAuth()
 
 const projectId = ref(parseInt(route.params.projectId as string))
 const taskId = ref(route.params.taskId as string)
@@ -63,17 +61,8 @@ onUnmounted(() => {
 function checkTaskStatus() {
   pollInterval.value = window.setInterval(async () => {
     try {
-      const token = getCookie('4aitek_jwt_token')
-      if (!token) {
-        router.push('/')
-        return
-      }
-
       const response = await fetch(`${apiUrl}/task-status/${taskId.value}`, {
-        credentials: 'include',
-        headers: {
-          'Cookie': `4aitek_jwt_token=${token}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) {
@@ -116,11 +105,12 @@ function updateStatus(data: any) {
     case 'FAILURE':
     case 'ERROR':
       statusMessage.value = 'Resume processing failed.'
-      error.value = data.error || 'An unknown error occurred during resume processing.'
+      const errorMsg = data.error || 'An unknown error occurred during resume processing.'
+      error.value = errorMsg
       if (pollInterval.value) {
         clearInterval(pollInterval.value)
       }
-      message.error(error.value || 'Resume processing failed')
+      message.error(errorMsg)
       break
   }
 }

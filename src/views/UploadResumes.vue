@@ -131,12 +131,10 @@ import {
   CloudUploadOutline
 } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
-import { useAuth } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
-const { getCookie } = useAuth()
 
 const projectId = ref(parseInt(route.params.projectId as string))
 const project = ref<any>(null)
@@ -155,17 +153,8 @@ onMounted(async () => {
 
 async function loadProjectInfo() {
   try {
-    const token = getCookie('4aitek_jwt_token')
-    if (!token) {
-      router.push('/')
-      return
-    }
-
-    const response = await fetch(`${apiUrl}/projects/${projectId.value}`, {
-      credentials: 'include',
-      headers: {
-        'Cookie': `4aitek_jwt_token=${token}`
-      }
+    const response = await fetch(`${apiUrl}/projects/${projectId.value}/resumes`, {
+      credentials: 'include'
     })
 
     if (!response.ok) {
@@ -232,12 +221,6 @@ async function handleUpload() {
   error.value = null
 
   try {
-    const token = getCookie('4aitek_jwt_token')
-    if (!token) {
-      router.push('/')
-      return
-    }
-
     const formData = new FormData()
     selectedFiles.value.forEach(file => {
       formData.append('resumes', file)
@@ -246,9 +229,6 @@ async function handleUpload() {
     const response = await fetch(`${apiUrl}/projects/${projectId.value}/upload-resumes`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Cookie': `4aitek_jwt_token=${token}`
-      },
       body: formData
     })
 
@@ -266,8 +246,9 @@ async function handleUpload() {
       throw new Error(data.error || 'Upload failed')
     }
   } catch (err: any) {
-    error.value = err.message || 'Failed to upload resumes'
-    message.error(error.value)
+    const errorMsg = err.message || 'Failed to upload resumes'
+    error.value = errorMsg
+    message.error(errorMsg)
     console.error('Upload error:', err)
   } finally {
     uploading.value = false

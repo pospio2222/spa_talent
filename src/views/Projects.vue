@@ -55,7 +55,7 @@
           <table class="projects-table">
             <thead>
               <tr>
-                <th>Add<br>Resumes</th>
+                <th>Upload<br>Resumes</th>
                 <th>Analysis</th>
                 <th @click="sortBy('project_name')" class="sortable">Project Name</th>
                 <th @click="sortBy('company')" class="sortable">Company</th>
@@ -72,7 +72,7 @@
                   <button 
                     @click="uploadResume(project.project_id)" 
                     class="cell-link upload"
-                    title="Add Resumes"
+                    title="Upload Resumes"
                   >
                     <i class="fas fa-plus"></i>
                   </button>
