@@ -12,26 +12,34 @@
         <n-card v-if="project" class="project-info-card">
           <h3>Project Information</h3>
           <div class="project-info-content">
-            <div class="project-info-item">
-              <span class="project-info-label">Project Name</span>
-              <span class="project-info-value">{{ project.project_name }}</span>
+            <div class="project-info-grid">
+              <div class="project-info-item">
+                <span class="project-info-label">Project Name</span>
+                <span class="project-info-value">{{ project.project_name }}</span>
+              </div>
+              <div class="project-info-item">
+                <span class="project-info-label">Company</span>
+                <span class="project-info-value">{{ project.company }}</span>
+              </div>
+              <div class="project-info-item">
+                <span class="project-info-label">Position Category</span>
+                <span class="project-info-value">{{ project.position_category }}</span>
+              </div>
+              <div class="project-info-item">
+                <span class="project-info-label">Position Title</span>
+                <span class="project-info-value">{{ project.position_title }}</span>
+              </div>
+              <div v-if="project.description" class="project-info-item">
+                <span class="project-info-label">Description</span>
+                <span class="project-info-value">{{ project.description }}</span>
+              </div>
             </div>
-            <div class="project-info-item">
-              <span class="project-info-label">Company</span>
-              <span class="project-info-value">{{ project.company }}</span>
-            </div>
-            <div class="project-info-item">
-              <span class="project-info-label">Position Category</span>
-              <span class="project-info-value">{{ project.position_category }}</span>
-            </div>
-            <div class="project-info-item">
-              <span class="project-info-label">Position Title</span>
-              <span class="project-info-value">{{ project.position_title }}</span>
-            </div>
-            <div v-if="project.description" class="project-info-item">
-              <span class="project-info-label">Description</span>
-              <span class="project-info-value">{{ project.description }}</span>
-            </div>
+            <n-button @click="goBack" class="back-btn" ghost>
+              <template #icon>
+                <n-icon><ArrowBackOutline /></n-icon>
+              </template>
+              Back to Projects
+            </n-button>
           </div>
         </n-card>
 
@@ -128,7 +136,8 @@ import {
   DocumentAttachOutline,
   FolderOpenOutline,
   CloseOutline,
-  CloudUploadOutline
+  CloudUploadOutline,
+  ArrowBackOutline
 } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
 
@@ -211,6 +220,10 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+function goBack() {
+  router.push('/projects')
+}
+
 async function handleUpload() {
   if (selectedFiles.value.length === 0) {
     error.value = 'Please select at least one resume file'
@@ -291,9 +304,17 @@ async function handleUpload() {
 }
 
 .project-info-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.project-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
+  flex: 1;
   font-size: 1rem;
 }
 
@@ -315,6 +336,18 @@ async function handleUpload() {
   color: #1e293b;
   font-weight: 500;
   word-break: break-word;
+}
+
+.back-btn {
+  flex-shrink: 0;
+  color: #666 !important;
+  border-color: #999 !important;
+}
+
+.back-btn:hover {
+  color: #333 !important;
+  border-color: #666 !important;
+  background-color: #f5f5f5 !important;
 }
 
 .upload-form-card {

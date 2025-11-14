@@ -567,14 +567,14 @@ onUnmounted(() => {
 
 .back-btn {
   flex-shrink: 0;
-  color: #666;
-  border-color: #d9d9d9;
+  color: #666 !important;
+  border-color: #999 !important;
 }
 
 .back-btn:hover {
-  color: #333;
-  border-color: #999;
-  background-color: #f5f5f5;
+  color: #333 !important;
+  border-color: #666 !important;
+  background-color: #f5f5f5 !important;
 }
 
 .progress-card {
