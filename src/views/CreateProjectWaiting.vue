@@ -119,7 +119,7 @@ function updateStatus(data: any) {
     case 'FAILURE':
       statusMessage.value = 'Project creation failed.'
       error.value = data.error || 'An unknown error occurred during project creation.'
-      message.error(error.value)
+      message.error(error.value || 'Project creation failed')
       break
     default:
       statusMessage.value = 'Unknown status.'
