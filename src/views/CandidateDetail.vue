@@ -98,7 +98,7 @@
                 </div>
                 <div class="form-group">
                   <label>Email:</label>
-                  <n-input v-model:value="editForm.email" placeholder="Email" type="email" />
+                  <n-input v-model:value="editForm.email" placeholder="Email" />
                 </div>
                 <div class="form-group">
                   <label>Phone:</label>
@@ -389,12 +389,12 @@ async function loadCandidateDetails() {
       }
     } else {
       error.value = data.error || 'Failed to load candidate details.'
-      message.error(error.value)
+      message.error(error.value || 'Failed to load candidate details.')
     }
   } catch (err: any) {
     console.error('Error loading candidate details:', err)
     error.value = 'Network error or server unreachable.'
-    message.error(error.value)
+    message.error('Network error or server unreachable.')
   } finally {
     loading.value = false
   }
