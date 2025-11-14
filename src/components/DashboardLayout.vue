@@ -18,8 +18,8 @@
           <!-- Logo -->
           <div class="logo-section">
             <div class="logo-wrapper">
-              <img src="/icon_pink.png" alt="Talent AI" class="logo-icon" />
-              <span v-show="!collapsed" class="logo-text">Talent AI</span>
+              <img src="/icon_pink.png" alt="T4lent" class="logo-icon" />
+              <span v-show="!collapsed" class="logo-text">T4lent</span>
             </div>
           </div>
 
