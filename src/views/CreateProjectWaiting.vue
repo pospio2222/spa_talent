@@ -2,160 +2,155 @@
   <div class="waiting-container">
     <PageBanner
       title="Creating Project"
-      subtitle="Processing job description and setting up project"
+      subtitle="Your recruiting project is being set up"
+      :show-credits="false"
     />
 
-    <div class="content-wrapper">
-      <n-card class="status-card">
-        <div v-if="!hasError" class="status-content">
-          <div class="spinner-container">
-            <n-spin size="large" />
-          </div>
+    <div class="waiting-content">
+      <div class="animation-wrapper">
+        <div class="spinner"></div>
+      </div>
+      
+      <h2 class="status-title">{{ statusMessage }}</h2>
+      <p class="status-subtitle" v-if="!error">This may take a few moments...</p>
 
-          <h2>Processing Your Project</h2>
-          <p>This may take a few moments. Please don't close this page.</p>
+      <n-alert v-if="error" type="error" title="Error" style="margin-top: 30px; max-width: 500px;">
+        {{ error }}
+      </n-alert>
 
-          <div class="progress-steps">
-            <div class="step" :class="{ active: currentStep >= 1 }">
-              <i class="fas fa-upload"></i>
-              <span>Uploading Files</span>
-            </div>
-            <div class="step" :class="{ active: currentStep >= 2 }">
-              <i class="fas fa-file-alt"></i>
-              <span>Extracting Content</span>
-            </div>
-            <div class="step" :class="{ active: currentStep >= 3 }">
-              <i class="fas fa-brain"></i>
-              <span>Processing with AI</span>
-            </div>
-            <div class="step" :class="{ active: currentStep >= 4 }">
-              <i class="fas fa-check-circle"></i>
-              <span>Finalizing</span>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="error-content">
-          <i class="fas fa-exclamation-triangle"></i>
-          <h2>Processing Failed</h2>
-          <p>{{ errorMessage }}</p>
-          <n-button type="primary" @click="retryOrGoBack">
-            Go Back to Projects
-          </n-button>
-        </div>
-      </n-card>
+      <div class="actions" v-if="error">
+        <n-button type="primary" @click="retryTask" :loading="isRetrying">
+          <template #icon>
+            <n-icon><RefreshOutline /></n-icon>
+          </template>
+          Retry
+        </n-button>
+        <n-button @click="router.push('/projects')">
+          Go to Projects
+        </n-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NCard, NSpin, NButton, useMessage } from 'naive-ui'
+import { NButton, NAlert, NIcon, useMessage } from 'naive-ui'
+import { RefreshOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 
-const currentStep = ref(1)
-const hasError = ref(false)
-const errorMessage = ref('')
+const taskId = ref<string | null>(null)
+const statusMessage = ref('Starting project creation...')
+const error = ref<string | null>(null)
+const isRetrying = ref(false)
 let pollInterval: number | null = null
-let stepInterval: number | null = null
 
-async function checkTaskStatus() {
-  const taskId = route.params.taskId as string
-  
-  if (!taskId) {
-    showError('No task ID found')
-    return
-  }
-
+async function checkTaskStatusOnce(id: string) {
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/task-status/${taskId}`, {
+    const response = await fetch(`https://talent.api.4aitek.com/task-status/${id}`, {
       credentials: 'include'
     })
-
     if (!response.ok) {
-      console.warn('Status check failed, will retry:', response.status)
+      throw new Error(`API responded with status ${response.status}`)
+    }
+    const data = await response.json()
+    updateStatus(data)
+  } catch (err: any) {
+    console.error('Initial status check failed:', err)
+  }
+}
+
+function checkTaskStatus(id: string) {
+  let pollCount = 0
+  const maxPolls = 300 // 25 minutes max
+
+  pollInterval = window.setInterval(async () => {
+    if (++pollCount > maxPolls) {
+      if (pollInterval) clearInterval(pollInterval)
+      pollInterval = null
+      error.value = 'Processing is taking longer than expected. Please try again or contact support.'
+      statusMessage.value = 'Project creation timed out.'
       return
     }
 
-    const data = await response.json()
+    try {
+      const response = await fetch(`https://talent.api.4aitek.com/task-status/${id}`, {
+        credentials: 'include'
+      })
 
-    if (data.state === 'SUCCESS') {
-      if (pollInterval) clearInterval(pollInterval)
-      if (stepInterval) clearInterval(stepInterval)
-      
-      const projectId = data.result?.project_id || data.project_id
-      
-      if (projectId) {
-        message.success('Project created successfully!')
-        router.push('/projects')
-      } else {
-        showError('Project created but ID not found')
+      if (!response.ok) {
+        console.warn('Status check failed, will retry:', response.status)
+        return
       }
-    } else if (data.state === 'FAILURE') {
-      if (pollInterval) clearInterval(pollInterval)
-      if (stepInterval) clearInterval(stepInterval)
-      showError(data.error || 'Project creation failed')
+
+      const data = await response.json()
+      updateStatus(data)
+
+      if (data.state === 'SUCCESS' || data.state === 'FAILURE') {
+        if (pollInterval) {
+          clearInterval(pollInterval)
+          pollInterval = null
+        }
+      }
+    } catch (err: any) {
+      console.warn('Error checking status, will retry:', err.message)
     }
-  } catch (error: any) {
-    console.warn('Error checking status, will retry:', error.message)
+  }, 5000)
+}
+
+function updateStatus(data: any) {
+  switch (data.state) {
+    case 'PENDING':
+      statusMessage.value = 'Project creation is pending...'
+      break
+    case 'PROCESSING':
+      statusMessage.value = 'Processing job description and cultural fit documents...'
+      break
+    case 'SUCCESS':
+      statusMessage.value = 'Project created successfully!'
+      message.success('Project created successfully!')
+      router.push('/projects')
+      break
+    case 'FAILURE':
+      statusMessage.value = 'Project creation failed.'
+      error.value = data.error || 'An unknown error occurred during project creation.'
+      message.error(error.value)
+      break
+    default:
+      statusMessage.value = 'Unknown status.'
+      error.value = data.error || 'An unknown error occurred.'
+      break
   }
 }
 
-function showError(msg: string) {
-  hasError.value = true
-  errorMessage.value = msg
-}
-
-function retryOrGoBack() {
-  router.push('/projects')
-}
-
-function startPolling() {
-  // Initial check
-  checkTaskStatus()
-
-  // Poll every 3 seconds
-  pollInterval = window.setInterval(() => {
-    checkTaskStatus()
-  }, 3000)
-
-  // Animate progress steps
-  stepInterval = window.setInterval(() => {
-    if (currentStep.value < 4) {
-      currentStep.value++
-    } else {
-      currentStep.value = 1
-    }
-  }, 2000)
-
-  // Stop after 5 minutes
-  setTimeout(() => {
-    if (pollInterval) {
-      clearInterval(pollInterval)
-      pollInterval = null
-    }
-    if (stepInterval) {
-      clearInterval(stepInterval)
-      stepInterval = null
-    }
-    if (!hasError.value) {
-      showError('Processing is taking longer than expected. Please check your projects list.')
-    }
-  }, 300000)
+async function retryTask() {
+  if (!taskId.value) return
+  isRetrying.value = true
+  error.value = null
+  statusMessage.value = 'Retrying project creation...'
+  router.go(0)
 }
 
 onMounted(() => {
-  startPolling()
+  taskId.value = route.params.taskId as string
+  if (!taskId.value) {
+    message.error('No task ID found. Redirecting to project creation.')
+    router.push('/create-project')
+    return
+  }
+  checkTaskStatusOnce(taskId.value)
+  checkTaskStatus(taskId.value)
 })
 
-onBeforeUnmount(() => {
-  if (pollInterval) clearInterval(pollInterval)
-  if (stepInterval) clearInterval(stepInterval)
+onUnmounted(() => {
+  if (pollInterval) {
+    clearInterval(pollInterval)
+  }
 })
 </script>
 
@@ -166,93 +161,52 @@ onBeforeUnmount(() => {
   flex-direction: column;
 }
 
-.content-wrapper {
+.waiting-content {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.status-card {
-  max-width: 600px;
-  width: 100%;
-  text-align: center;
-}
-
-.status-content,
-.error-content {
-  padding: 2rem;
-}
-
-.spinner-container {
-  margin-bottom: 2rem;
-}
-
-.status-content h2,
-.error-content h2 {
-  font-size: 1.5rem;
-  color: #1e293b;
-  margin-bottom: 1rem;
-}
-
-.status-content p,
-.error-content p {
-  color: #64748b;
-  margin-bottom: 2rem;
-}
-
-.progress-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 12px;
-  background: #f8fafc;
-  color: #94a3b8;
-  transition: all 0.3s ease;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
 }
 
-.step.active {
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+.animation-wrapper {
+  margin-bottom: 40px;
 }
 
-.step i {
-  font-size: 1.5rem;
+.spinner {
+  width: 80px;
+  height: 80px;
+  border: 6px solid #e2e8f0;
+  border-top: 6px solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
 }
 
-.step span {
-  font-size: 0.75rem;
-  font-weight: 500;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.error-content {
-  color: #ef4444;
+.status-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
 }
 
-.error-content i {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.status-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 20px;
 }
 
-.error-content h2 {
-  color: #ef4444;
-}
-
-@media (max-width: 768px) {
-  .progress-steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
 }
 </style>
-
