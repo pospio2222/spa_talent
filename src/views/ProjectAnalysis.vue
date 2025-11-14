@@ -465,9 +465,8 @@ function viewResults(_resumeId: number, analysisId: number | null) {
     return
   }
   
-  // TODO: Implement results view page
-  message.info('View results page will be implemented')
-  console.log('View results for analysis:', analysisId)
+  // Navigate to analysis detail page
+  router.push(`/analysis/${analysisId}`)
 }
 
 function showErrorDetails(resumeId: number) {
