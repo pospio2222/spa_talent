@@ -68,6 +68,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ProjectCandidates.vue')
   },
   {
+    path: '/migrate-resumes-waiting/:projectId',
+    name: 'migrate-resumes-waiting',
+    component: () => import('@/views/MigrateResumesWaiting.vue')
+  },
+  {
     path: '/candidate/:resumeId/:projectId',
     name: 'candidate-detail',
     component: () => import('@/views/CandidateDetail.vue')

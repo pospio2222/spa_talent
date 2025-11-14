@@ -299,26 +299,26 @@ async function migrateResumes() {
     const data = await response.json()
     
     if (data.success) {
-      migrationState.value = 'complete'
-      message.success(data.message || 'Migration started successfully')
-      
-      // Wait a few seconds then refresh
-      setTimeout(async () => {
+      if (data.task_ids && data.task_ids.length > 0) {
+        // Redirect to waiting page with task IDs
+        const taskIdsParam = data.task_ids.join(',')
+        router.push(`/migrate-resumes-waiting/${projectId.value}?taskIds=${taskIdsParam}`)
+      } else {
+        // No tasks to process
+        message.success(data.message || 'No resumes to migrate')
         await loadProjectInfo()
         await loadCandidates()
+        migrating.value = false
         migrationState.value = ''
-      }, 3000)
+      }
     } else {
       throw new Error(data.error || 'Migration failed')
     }
   } catch (error: any) {
     console.error('Migration error:', error)
     message.error(error.message || 'Failed to start migration')
+    migrating.value = false
     migrationState.value = ''
-  } finally {
-    setTimeout(() => {
-      migrating.value = false
-    }, 3000)
   }
 }
 
