@@ -123,7 +123,7 @@
                       @click="viewCandidate(candidate.candidate_id)"
                       class="view-btn"
                     >
-                      <i class="fas fa-eye"></i> View
+                      View
                     </n-button>
                   </td>
                 </tr>
@@ -168,7 +168,7 @@
                       @click="viewCandidate(candidate.candidate_id)"
                       class="view-btn"
                     >
-                      <i class="fas fa-eye"></i> View
+                      View
                     </n-button>
                   </td>
                 </tr>
