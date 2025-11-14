@@ -178,14 +178,14 @@ onMounted(() => {
 // Menu options matching archived landing app
 const menuOptions = computed<MenuOption[]>(() => [
   {
-    label: 'Home',
+    label: 'Information',
     key: 'console',
-    icon: () => h('i', { class: 'fas fa-home' })
+    icon: () => h('i', { class: 'fas fa-info-circle' })
   },
   {
-    label: 'Manage Projects',
+    label: 'Resume Analysis',
     key: 'projects',
-    icon: () => h('i', { class: 'fas fa-briefcase' })
+    icon: () => h('i', { class: 'fas fa-chart-line' })
   },
   {
     label: 'AI Talent Assistant',
