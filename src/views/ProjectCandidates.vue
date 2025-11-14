@@ -117,14 +117,23 @@
                     <span v-else>-</span>
                   </td>
                   <td>
-                    <n-button 
-                      type="primary"
-                      size="small"
-                      @click="viewCandidate(candidate.candidate_id)"
-                      class="view-btn"
-                    >
-                      View
-                    </n-button>
+                    <div class="action-buttons">
+                      <n-button 
+                        type="primary"
+                        size="small"
+                        @click="viewCandidate(candidate.candidate_id)"
+                      >
+                        View
+                      </n-button>
+                      <n-button 
+                        size="small"
+                        class="move-down-btn"
+                        @click="moveToNotInterested(candidate.candidate_id)"
+                        title="Mark as Not Interested"
+                      >
+                        <i class="fas fa-arrow-down"></i>
+                      </n-button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -134,7 +143,10 @@
           <!-- Not Interested Candidates -->
           <div v-if="notInterestedCandidates.length > 0" class="candidates-section-group not-interested">
             <div class="section-header">
-              <h3 class="section-title">Not Interested ({{ notInterestedCandidates.length }})</h3>
+              <h3 class="section-title">
+                <i class="fas fa-times-circle" style="color: #9ca3af; margin-right: 0.5rem;"></i>
+                Not Interested ({{ notInterestedCandidates.length }})
+              </h3>
             </div>
             <table class="candidates-table">
               <thead>
@@ -162,14 +174,23 @@
                     <span v-else>-</span>
                   </td>
                   <td>
-                    <n-button 
-                      type="primary"
-                      size="small"
-                      @click="viewCandidate(candidate.candidate_id)"
-                      class="view-btn"
-                    >
-                      View
-                    </n-button>
+                    <div class="action-buttons">
+                      <n-button 
+                        type="primary"
+                        size="small"
+                        @click="viewCandidate(candidate.candidate_id)"
+                      >
+                        View
+                      </n-button>
+                      <n-button 
+                        size="small"
+                        class="move-up-btn"
+                        @click="moveToActive(candidate.candidate_id)"
+                        title="Mark as Applied"
+                      >
+                        <i class="fas fa-arrow-up"></i>
+                      </n-button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -353,6 +374,43 @@ function getStageType(stage: string): any {
 function formatStage(stage: string): string {
   if (!stage) return 'N/A'
   return stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+async function updateCandidateStage(candidateId: number, newStage: string) {
+  try {
+    const response = await fetch(
+      `https://talent.api.4aitek.com/candidate/${candidateId}/update-stage`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stage: newStage })
+      }
+    )
+    const data = await response.json()
+    
+    if (data.success) {
+      // Update local state
+      const candidate = candidates.value.find(c => c.candidate_id === candidateId)
+      if (candidate) {
+        candidate.current_stage = newStage
+      }
+      message.success(`Candidate moved successfully`)
+    } else {
+      message.error(data.error || 'Failed to update candidate stage')
+    }
+  } catch (error: any) {
+    console.error('Error updating candidate stage:', error)
+    message.error('Failed to update candidate stage')
+  }
+}
+
+async function moveToNotInterested(candidateId: number) {
+  await updateCandidateStage(candidateId, 'not_a_fit')
+}
+
+async function moveToActive(candidateId: number) {
+  await updateCandidateStage(candidateId, 'applied')
 }
 </script>
 
@@ -624,6 +682,51 @@ function formatStage(stage: string): string {
 
 .view-btn i {
   font-size: 0.875rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.move-down-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: #6b7280;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.move-down-btn:hover {
+  background: #4b5563 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.move-up-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: #10b981;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.move-up-btn:hover {
+  background: #059669 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .loading-state,
