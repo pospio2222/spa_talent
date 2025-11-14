@@ -1,221 +1,355 @@
 <template>
-  <div class="ai-assistant-container">
-    <PageBanner title="AI Assistant" />
+  <div class="ai-talent-container">
+    <!-- AI assistant notice -->
+    <div class="ai-assistant-notice">
+      <p>By default, the AI assistant reviews up to the top 20 scored resumes per project. Need more control? Upgrade to our Enterprise plan to customize your resume screening.</p>
+    </div>
     
-    <div class="content-wrapper">
-      <n-card title="Talent AI Assistant" class="chat-card">
-        <div class="chat-messages" ref="chatContainer">
-          <div
-            v-for="(msg, index) in messages"
-            :key="index"
-            :class="['message', msg.role]"
-          >
-            <div class="message-content">
-              <div class="message-header">
-                <i :class="msg.role === 'user' ? 'fas fa-user' : 'fas fa-robot'"></i>
-                <span>{{ msg.role === 'user' ? 'You' : 'AI Assistant' }}</span>
-              </div>
-              <div class="message-text" v-html="formatMessage(msg.content)"></div>
+    <div class="projects-table-container">
+      <div class="table-wrapper">
+        <n-spin :show="loading">
+          <template v-if="projects.length > 0">
+            <table class="projects-table" id="projects-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 50px; white-space: pre-line;">ChatAI</th>
+                  <th @click="sortTable(1)" class="sortable">Project Name</th>
+                  <th @click="sortTable(2)" class="sortable">Company</th>
+                  <th @click="sortTable(3)" class="sortable">Position</th>
+                  <th @click="sortTable(4)" class="sortable" style="min-width:40px;max-width:60px;"># Resumes</th>
+                  <th @click="sortTable(5)" class="sortable" style="min-width:40px;max-width:60px;"># Analyses</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="project in projects" :key="project.project_id">
+                  <td class="link-cell">
+                    <router-link 
+                      :to="`/chatflow?project_id=${project.project_id}`" 
+                      class="cell-link analysis" 
+                      title="Chat with AI Assistant"
+                    >
+                      <i class="fas fa-robot"></i>
+                    </router-link>
+                  </td>
+                  <td :title="project.project_name">{{ project.project_name }}</td>
+                  <td :title="project.company">{{ project.company }}</td>
+                  <td :title="project.position_title">{{ project.position_title }}</td>
+                  <td style="min-width:40px;max-width:60px;text-align:center;font-weight:600;">{{ project.resume_count || 0 }}</td>
+                  <td style="min-width:40px;max-width:60px;text-align:center;font-weight:600;">{{ project.analysis_count || 0 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+          <template v-else>
+            <div class="no-projects">
+              <i class="fas fa-robot"></i>
+              <h3>No Projects Found</h3>
+              <p>There are no projects available for AI assistant analysis.</p>
             </div>
-          </div>
-          
-          <div v-if="isLoading" class="message assistant">
-            <div class="message-content">
-              <div class="message-header">
-                <i class="fas fa-robot"></i>
-                <span>AI Assistant</span>
-              </div>
-              <div class="typing-indicator">
-                <span></span><span></span><span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-input">
-          <n-input
-            v-model:value="userInput"
-            type="textarea"
-            placeholder="Ask about candidates, recruiting strategies, or get insights..."
-            :rows="3"
-            @keydown.enter.ctrl="sendMessage"
-          />
-          <n-button type="primary" @click="sendMessage" :loading="isLoading">
-            <i class="fas fa-paper-plane"></i> Send
-          </n-button>
-        </div>
-      </n-card>
+          </template>
+        </n-spin>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
-import { NCard, NInput, NButton, useMessage } from 'naive-ui'
-import PageBanner from '@/components/PageBanner.vue'
+import { ref, onMounted } from 'vue'
+import { NSpin, useMessage } from 'naive-ui'
 
 const message = useMessage()
 
-const messages = ref<any[]>([])
-const userInput = ref('')
-const isLoading = ref(false)
-const chatContainer = ref<HTMLElement | null>(null)
+interface Project {
+  project_id: number
+  project_name: string
+  company: string
+  position_title: string
+  total_resumes: number
+  resume_count?: number
+  analysis_count?: number
+}
 
-async function sendMessage() {
-  if (!userInput.value.trim() || isLoading.value) return
-  
-  const userMessage = userInput.value.trim()
-  messages.value.push({ role: 'user', content: userMessage })
-  userInput.value = ''
-  
-  await nextTick()
-  scrollToBottom()
-  
-  isLoading.value = true
-  
+const projects = ref<Project[]>([])
+const loading = ref(true)
+
+onMounted(async () => {
+  await loadProjects()
+})
+
+async function loadProjects() {
+  loading.value = true
   try {
-    const response = await fetch('https://talent.api.4aitek.com/chat', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: messages.value
-      })
+    const response = await fetch('https://talent.api.4aitek.com/projects', {
+      credentials: 'include'
     })
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch projects')
+    }
     
     const data = await response.json()
     
     if (data.success) {
-      messages.value.push({ role: 'assistant', content: data.response })
-    } else {
-      message.error('Failed to get response')
+      // Get analysis counts for each project
+      projects.value = await Promise.all(data.projects.map(async (project: Project) => {
+        try {
+          const resumesRes = await fetch(
+            `https://talent.api.4aitek.com/projects/${project.project_id}/resumes`,
+            { credentials: 'include' }
+          )
+          const resumesData = await resumesRes.json()
+          
+          const resumeCount = resumesData.resumes?.length || 0
+          const analysisCount = resumesData.resumes?.filter((r: any) => r.analysis_status === 'completed').length || 0
+          
+          return {
+            ...project,
+            resume_count: resumeCount,
+            analysis_count: analysisCount
+          }
+        } catch {
+          return {
+            ...project,
+            resume_count: 0,
+            analysis_count: 0
+          }
+        }
+      }))
     }
   } catch (error: any) {
-    console.error('Chat error:', error)
-    message.error('Error communicating with AI')
+    console.error('Error loading projects:', error)
+    message.error('Failed to load projects')
   } finally {
-    isLoading.value = false
-    await nextTick()
-    scrollToBottom()
+    loading.value = false
   }
 }
 
-function formatMessage(text: string): string {
-  return text.replace(/\n/g, '<br>')
-}
-
-function scrollToBottom() {
-  if (chatContainer.value) {
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+function sortTable(columnIndex: number) {
+  const headers = ['', 'project_name', 'company', 'position_title', 'resume_count', 'analysis_count']
+  const key = headers[columnIndex] as keyof Project
+  
+  // Toggle sort direction
+  const currentSort = (projects.value as any)._sortKey
+  const currentDir = (projects.value as any)._sortDir
+  
+  let ascending = true
+  if (currentSort === key && currentDir === 'asc') {
+    ascending = false
   }
+  
+  // Sort
+  projects.value.sort((a, b) => {
+    let aVal = a[key]
+    let bVal = b[key]
+    
+    // Handle null/undefined
+    if (aVal === null || aVal === undefined) return ascending ? 1 : -1
+    if (bVal === null || bVal === undefined) return ascending ? -1 : 1
+    
+    // Numeric comparison
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return ascending ? aVal - bVal : bVal - aVal
+    }
+    
+    // String comparison
+    const aStr = String(aVal).toLowerCase()
+    const bStr = String(bVal).toLowerCase()
+    return ascending ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
+  })
+  
+  // Store sort state
+  ;(projects.value as any)._sortKey = key
+  ;(projects.value as any)._sortDir = ascending ? 'asc' : 'desc'
 }
 </script>
 
 <style scoped>
-.ai-assistant-container {
-  min-height: calc(100vh - 60px);
-  background: #f8f9fa;
-}
-
-.content-wrapper {
-  max-width: 1000px;
+.ai-talent-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 5px;
 }
 
-.chat-card {
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
+.ai-assistant-notice {
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  max-height: 500px;
-  margin-bottom: 20px;
-  padding: 20px;
-  background: #f8f9fa;
+.ai-assistant-notice p {
+  font-size: 0.85em;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.projects-table-container {
+  background: white;
   border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  margin-top: 5px;
 }
 
-.message {
-  margin-bottom: 20px;
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-.message-content {
-  max-width: 80%;
-  padding: 15px;
-  border-radius: 12px;
+.projects-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  margin: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(67, 233, 123, 0.06);
+  font-size: 0.95em;
 }
 
-.message.user .message-content {
-  margin-left: auto;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.projects-table th,
+.projects-table td {
+  border: 1px solid #e3e8ee;
+  border-collapse: collapse;
+  padding: 0 3px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #222e3a;
+  height: 40px;
+  white-space: pre-line;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 1px solid #e3e8ee;
+}
+
+.projects-table th {
+  background: #f8fafc;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.95em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: pre-line;
+  border-bottom: 2px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.projects-table th.sortable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.projects-table th.sortable:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.projects-table tbody tr td:nth-child(1) {
+  background: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
   color: white;
 }
 
-.message.assistant .message-content {
-  background: white;
-  border: 1px solid #e2e8f0;
+.projects-table tbody tr td:nth-child(1) .cell-link i {
+  color: white !important;
+  opacity: 0.9;
 }
 
-.message-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 0.9em;
+.projects-table tbody tr td:nth-child(1) .cell-link:hover i {
+  color: white !important;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.2);
 }
 
-.message.user .message-header {
-  color: rgba(255, 255, 255, 0.9);
+.projects-table td {
+  background: #fff;
+  color: #222e3a;
+  border-bottom: 1px solid #e3e8ee;
+  vertical-align: middle;
+  line-height: 1;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
-.message.assistant .message-header {
-  color: #4a5568;
+.projects-table tr:hover td {
+  background: #f8f9fa;
 }
 
-.message-text {
-  line-height: 1.6;
+.projects-table tbody tr:hover td:nth-child(1) {
+  background: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
 }
 
-.typing-indicator {
-  display: flex;
-  gap: 5px;
-  padding: 10px 0;
+.link-cell {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 0 !important;
 }
 
-.typing-indicator span {
-  width: 8px;
-  height: 8px;
-  background: #667eea;
-  border-radius: 50%;
-  animation: typing 1.4s infinite;
+.cell-link {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
+.cell-link.analysis {
+  background: transparent;
+  border: none;
 }
 
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.4s;
+.cell-link i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #374151;
+  opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
-@keyframes typing {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-10px);
-  }
+.cell-link:hover {
+  background: transparent;
+  border: none;
+  transform: none;
+  box-shadow: none;
 }
 
-.chat-input {
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
+.cell-link:hover i {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.3);
+  color: #1e293b;
+}
+
+.no-projects {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.no-projects i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-projects h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
 }
 </style>
 

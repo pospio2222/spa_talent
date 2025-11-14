@@ -76,6 +76,11 @@ const routes: RouteRecordRaw[] = [
     path: '/analysis/:analysisId',
     name: 'analysis-detail',
     component: () => import('@/views/AnalysisDetail.vue')
+  },
+  {
+    path: '/chatflow',
+    name: 'chatflow',
+    component: () => import('@/views/Chatflow.vue')
   }
 ]
 
