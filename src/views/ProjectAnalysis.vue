@@ -29,11 +29,19 @@
 
       <!-- Project Info Card -->
       <n-card v-if="project" class="project-info-card">
-        <div class="project-info">
-          <p><strong>Project:</strong> {{ project.project_name }}</p>
-          <p><strong>Company:</strong> {{ project.company }}</p>
-          <p><strong>Position:</strong> {{ project.position_title }}</p>
-          <p><strong>Category:</strong> {{ project.position_category }}</p>
+        <div class="project-info-content">
+          <div class="project-info">
+            <p><strong>Project:</strong> {{ project.project_name }}</p>
+            <p><strong>Company:</strong> {{ project.company }}</p>
+            <p><strong>Position:</strong> {{ project.position_title }}</p>
+            <p><strong>Category:</strong> {{ project.position_category }}</p>
+          </div>
+          <n-button @click="goBack" class="back-btn">
+            <template #icon>
+              <n-icon><ArrowBackOutline /></n-icon>
+            </template>
+            Back to Projects
+          </n-button>
         </div>
       </n-card>
 
@@ -129,7 +137,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NSpin, NSwitch, NIcon, useMessage } from 'naive-ui'
-import { PlayCircleOutline, FolderOpenOutline, InformationCircleOutline } from '@vicons/ionicons5'
+import { PlayCircleOutline, FolderOpenOutline, InformationCircleOutline, ArrowBackOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
 
 const route = useRoute()
@@ -476,6 +484,10 @@ function goToUpload() {
   router.push(`/upload-resumes/${projectId.value}`)
 }
 
+function goBack() {
+  router.push('/projects')
+}
+
 onMounted(() => {
   loadResumes()
 })
@@ -537,13 +549,25 @@ onUnmounted(() => {
   margin-bottom: 20px;
 }
 
-.project-info {
+.project-info-content {
   padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.project-info {
+  flex: 1;
 }
 
 .project-info p {
   margin: 8px 0;
   color: #333;
+}
+
+.back-btn {
+  flex-shrink: 0;
 }
 
 .progress-card {
