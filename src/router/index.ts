@@ -53,6 +53,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/UploadResumes.vue')
   },
   {
+    path: '/upload-resumes-waiting/:projectId/:taskId',
+    name: 'upload-resumes-waiting',
+    component: () => import('@/views/UploadResumesWaiting.vue')
+  },
+  {
     path: '/project-analysis/:projectId',
     name: 'project-analysis',
     component: () => import('@/views/ProjectAnalysis.vue')
@@ -62,17 +67,17 @@ const routes: RouteRecordRaw[] = [
     name: 'project-candidates',
     component: () => import('@/views/ProjectCandidates.vue')
   },
-      {
-        path: '/candidate/:resumeId/:projectId',
-        name: 'candidate-detail',
-        component: () => import('@/views/CandidateDetail.vue')
-      },
-      {
-        path: '/analysis/:analysisId',
-        name: 'analysis-detail',
-        component: () => import('@/views/AnalysisDetail.vue')
-      }
-    ]
+  {
+    path: '/candidate/:resumeId/:projectId',
+    name: 'candidate-detail',
+    component: () => import('@/views/CandidateDetail.vue')
+  },
+  {
+    path: '/analysis/:analysisId',
+    name: 'analysis-detail',
+    component: () => import('@/views/AnalysisDetail.vue')
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(),

@@ -36,7 +36,7 @@
             <p><strong>Position:</strong> {{ project.position_title }}</p>
             <p><strong>Category:</strong> {{ project.position_category }}</p>
           </div>
-          <n-button @click="goBack" class="back-btn">
+          <n-button @click="goBack" class="back-btn" ghost>
             <template #icon>
               <n-icon><ArrowBackOutline /></n-icon>
             </template>
@@ -567,6 +567,14 @@ onUnmounted(() => {
 
 .back-btn {
   flex-shrink: 0;
+  color: #666;
+  border-color: #d9d9d9;
+}
+
+.back-btn:hover {
+  color: #333;
+  border-color: #999;
+  background-color: #f5f5f5;
 }
 
 .progress-card {
