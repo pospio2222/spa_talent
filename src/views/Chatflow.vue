@@ -19,7 +19,7 @@
         :class="['message', msg.role]"
       >
         <div class="avatar">
-          <img :src="msg.role === 'user' ? '/static/img/user.jpg' : '/static/img/bot.jpg'" :alt="msg.role">
+          <img :src="msg.role === 'user' ? '/user.jpg' : '/bot.jpg'" :alt="msg.role">
         </div>
         <div class="message-bubble">
           <button class="copy-btn" @click="copyMessage(msg.content)">
