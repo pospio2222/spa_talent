@@ -34,7 +34,7 @@
                 <span class="project-info-value">{{ project.description }}</span>
               </div>
             </div>
-            <n-button @click="goBack" class="back-btn" ghost>
+            <n-button @click="goBack" class="back-btn">
               <template #icon>
                 <n-icon><ArrowBackOutline /></n-icon>
               </template>
@@ -340,14 +340,15 @@ async function handleUpload() {
 
 .back-btn {
   flex-shrink: 0;
-  color: #666 !important;
+  color: #333 !important;
+  background-color: #999 !important;
   border-color: #999 !important;
 }
 
 .back-btn:hover {
-  color: #333 !important;
-  border-color: #666 !important;
-  background-color: #f5f5f5 !important;
+  color: #fff !important;
+  background-color: #777 !important;
+  border-color: #777 !important;
 }
 
 .upload-form-card {
