@@ -1,233 +1,603 @@
 <template>
-  <div class="hiretrac-candidate-detail">
-    <n-spin :show="loading">
-      <!-- Candidate Header -->
-      <div class="candidate-header">
-        <div class="candidate-info">
-          <div class="candidate-breadcrumb">
-            <router-link to="/candidates"><i class="fas fa-users"></i> Manage Candidates</router-link>
-            <span> / </span>
-            <router-link :to="`/project/${projectId}/candidates`">{{candidate?.project_name || 'Project'}}</router-link>
-            <span> / {{ candidate?.name || 'Candidate Details' }}</span>
-          </div>
-          <h1>{{ candidate?.name || 'Unknown Candidate' }}</h1>
-          <div class="candidate-meta">
-            <span class="position">{{ candidate?.position_title }}</span>
-            <span class="company">{{ candidate?.company }}</span>
-          </div>
+  <div class="candidate-detail-container">
+    <PageBanner title="Candidate Detail" />
+    
+    <div class="content-wrapper">
+      <n-card>
+        <n-button @click="$router.back()" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Back
+        </n-button>
+        
+        <div v-if="loading" class="loading-state">
+          <n-spin size="large" />
+          <p>Loading candidate details...</p>
         </div>
-        <div class="candidate-actions">
-          <n-button secondary @click="$router.push(`/project/${projectId}/candidates`)">
-            <i class="fas fa-arrow-left"></i> Back to Candidates
-          </n-button>
+        
+        <div v-else-if="error" class="error-state">
+          <p>Error: {{ error }}</p>
+          <n-button @click="loadCandidateDetails">Retry</n-button>
         </div>
-      </div>
-
-      <!-- Candidate Summary -->
-      <div class="candidate-summary">
-        <div class="summary-card">
-          <div class="card-header">
-            <h3><i class="fas fa-user"></i> Contact Information</h3>
-          </div>
-          <div class="contact-info">
-            <div class="contact-item">
-              <label>Email:</label>
-              <span>{{ candidate?.email || 'Not provided' }}</span>
-            </div>
-            <div class="contact-item">
-              <label>Phone:</label>
-              <span>{{ candidate?.phone || 'Not provided' }}</span>
-            </div>
-            <div class="contact-item">
-              <label>Location:</label>
-              <span>{{ candidate?.location || 'Not provided' }}</span>
-            </div>
-            <div class="contact-item">
-              <label>LinkedIn:</label>
-              <span>
-                <a v-if="candidate?.linkedin_url" :href="candidate.linkedin_url" target="_blank">
-                  {{ candidate.linkedin_url }}
-                </a>
-                <template v-else>Not provided</template>
-              </span>
-            </div>
-            <div class="contact-item">
-              <label>Current Company:</label>
-              <span>{{ candidate?.current_company || 'Not provided' }}</span>
-            </div>
-            <div class="contact-item">
-              <label>Experience Years:</label>
-              <span>{{ candidate?.experience_years || 'Not provided' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="summary-card">
-          <div class="card-header">
-            <h3><i class="fas fa-chart-pie"></i> Status & Progress</h3>
-          </div>
-          <div class="status-info">
-            <div class="status-item">
-              <label>Current Stage:</label>
-              <span :class="['stage-badge', `stage-${candidate?.current_stage}`]">
-                {{ formatStage(candidate?.current_stage) }}
-              </span>
-            </div>
-            <div class="status-item">
-              <label>Analysis Score:</label>
-              <span class="score-badge">{{ candidate?.analysis_score || 'N/A' }}</span>
-            </div>
-            <div class="status-item">
-              <label>Last Updated:</label>
-              <span>{{ candidate?.stage_updated_at_str || 'N/A' }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Content -->
-      <div class="content-container">
-        <div class="content-tabs">
-          <div class="tabs-header">
-            <button 
-              :class="['tab-button', { active: activeTab === 'resume' }]"
-              @click="activeTab = 'resume'"
-            >
-              <i class="fas fa-file-alt"></i> Resume
-            </button>
-            <button 
-              :class="['tab-button', { active: activeTab === 'analysis' }]"
-              @click="activeTab = 'analysis'"
-            >
-              <i class="fas fa-chart-pie"></i> Analysis
-            </button>
-          </div>
-
-          <!-- Resume Tab -->
-          <div v-if="activeTab === 'resume'" class="tab-content active">
-            <div class="content-card">
-              <div class="card-header">
-                <h3><i class="fas fa-file-alt"></i> Resume Content</h3>
+        
+        <div v-else-if="candidate" class="detail-content">
+          <!-- Candidate Header -->
+          <div class="candidate-header">
+            <div class="candidate-info">
+              <div class="candidate-breadcrumb">
+                <router-link to="/projects"><i class="fas fa-users"></i> Manage Candidates</router-link>
+                <span> / </span>
+                <router-link :to="`/project/${candidate.project_id}/candidates`">{{ candidate.project_name }}</router-link>
+                <span> / {{ candidate.name || 'Candidate Details' }}</span>
               </div>
-              <div v-if="candidate?.resume_str" class="resume-content">
-                <pre>{{ candidate.resume_str }}</pre>
+              <h1>{{ candidate.name || 'Unknown Candidate' }}</h1>
+              <div class="candidate-meta">
+                <span class="position">{{ candidate.position_title }}</span>
+                <span class="company">{{ candidate.company }}</span>
               </div>
-              <p v-else>No resume content available for this candidate.</p>
+            </div>
+            <div class="candidate-actions">
+              <n-button @click="$router.back()">
+                <i class="fas fa-arrow-left"></i> Back to Candidates
+              </n-button>
             </div>
           </div>
 
-          <!-- Analysis Tab -->
-          <div v-if="activeTab === 'analysis'" class="tab-content active">
-            <div class="content-card">
+          <!-- Candidate Summary -->
+          <div class="candidate-summary">
+            <div class="summary-card">
               <div class="card-header">
-                <h3><i class="fas fa-chart-pie"></i> Analysis Report</h3>
-                <div class="header-actions">
-                  <span class="score-display">Score: {{ candidate?.analysis_score || 'N/A' }}</span>
-                  <n-button
-                    v-if="candidate?.descriptive_str || candidate?.tabular_str"
-                    secondary
-                    size="small"
-                    @click="copyAnalysis"
-                  >
-                    <i class="fas fa-copy"></i> Copy
+                <h3><i class="fas fa-user"></i> Contact Information</h3>
+                <n-button v-if="!isEditMode" type="default" size="small" @click="toggleEditMode">
+                  <i class="fas fa-edit"></i> Edit
+                </n-button>
+                <div v-else class="edit-actions">
+                  <n-button type="primary" size="small" @click="saveContactInfo">
+                    <i class="fas fa-save"></i> Save
+                  </n-button>
+                  <n-button type="default" size="small" @click="toggleEditMode">
+                    <i class="fas fa-times"></i> Cancel
                   </n-button>
                 </div>
               </div>
-              <div v-if="candidate?.descriptive_html || candidate?.tabular_html" class="analysis-content">
-                <div v-if="candidate?.descriptive_html" class="analysis-section">
-                  <h4>Analysis Summary</h4>
-                  <div class="markdown-content" v-html="candidate.descriptive_html"></div>
+              
+              <!-- View Mode -->
+              <div v-if="!isEditMode" class="contact-info">
+                <div class="contact-item">
+                  <label>Email:</label>
+                  <span>{{ candidate.email || 'Not provided' }}</span>
                 </div>
-                
-                <div v-if="candidate?.tabular_html" class="analysis-section">
-                  <h4>Detailed Breakdown</h4>
-                  <div class="markdown-content" v-html="candidate.tabular_html"></div>
+                <div class="contact-item">
+                  <label>Phone:</label>
+                  <span>{{ candidate.phone || 'Not provided' }}</span>
+                </div>
+                <div class="contact-item">
+                  <label>Location:</label>
+                  <span>{{ candidate.location || 'Not provided' }}</span>
+                </div>
+                <div class="contact-item">
+                  <label>LinkedIn:</label>
+                  <span>
+                    <a v-if="candidate.linkedin_url" :href="candidate.linkedin_url" target="_blank">{{ candidate.linkedin_url }}</a>
+                    <span v-else>Not provided</span>
+                  </span>
+                </div>
+                <div class="contact-item">
+                  <label>Current Company:</label>
+                  <span>{{ candidate.current_company || 'Not provided' }}</span>
+                </div>
+                <div class="contact-item">
+                  <label>Experience Years:</label>
+                  <span>{{ candidate.experience_years || 'Not provided' }}</span>
                 </div>
               </div>
-              <p v-else>No analysis available for this candidate.</p>
+              
+              <!-- Edit Mode -->
+              <div v-else class="contact-edit-form">
+                <div class="form-group">
+                  <label>Name:</label>
+                  <n-input v-model:value="editForm.name" placeholder="Name" />
+                </div>
+                <div class="form-group">
+                  <label>Email:</label>
+                  <n-input v-model:value="editForm.email" placeholder="Email" type="email" />
+                </div>
+                <div class="form-group">
+                  <label>Phone:</label>
+                  <n-input v-model:value="editForm.phone" placeholder="Phone" />
+                </div>
+                <div class="form-group">
+                  <label>Location:</label>
+                  <n-input v-model:value="editForm.location" placeholder="Location" />
+                </div>
+                <div class="form-group">
+                  <label>Current Company:</label>
+                  <n-input v-model:value="editForm.current_company" placeholder="Current Company" />
+                </div>
+                <div class="form-group">
+                  <label>LinkedIn:</label>
+                  <n-input v-model:value="editForm.linkedin_url" placeholder="LinkedIn URL" />
+                </div>
+                <div class="form-group">
+                  <label>Experience Years:</label>
+                  <n-input-number v-model:value="editForm.experience_years" :min="0" placeholder="Years" />
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="card-header">
+                <h3><i class="fas fa-chart-pie"></i> Status & Progress</h3>
+                <select class="stage-dropdown" @change="updateStage" :value="candidate.current_stage">
+                  <option v-for="stage in stageOptions" :key="stage.value" :value="stage.value">
+                    {{ stage.label }}
+                  </option>
+                </select>
+              </div>
+              <div class="status-info">
+                <div class="status-item">
+                  <label>Current Stage:</label>
+                  <span :class="['stage-badge', `stage-${candidate.current_stage}`]">
+                    {{ formatStage(candidate.current_stage) }}
+                  </span>
+                </div>
+                <div class="status-item">
+                  <label>Analysis Score:</label>
+                  <span class="score-badge">{{ candidate.analysis_score || 'N/A' }}</span>
+                </div>
+                <div class="status-item">
+                  <label>Last Updated:</label>
+                  <span>{{ candidate.stage_updated_at_str || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Tabs -->
+          <div class="content-container">
+            <div class="tabs-header">
+              <button 
+                :class="['tab-button', { active: activeTab === 'notes' }]" 
+                @click="activeTab = 'notes'"
+              >
+                <i class="fas fa-sticky-note"></i> Notes
+              </button>
+              <button 
+                :class="['tab-button', { active: activeTab === 'resume' }]" 
+                @click="activeTab = 'resume'"
+              >
+                <i class="fas fa-file-alt"></i> Resume
+              </button>
+              <button 
+                :class="['tab-button', { active: activeTab === 'analysis' }]" 
+                @click="activeTab = 'analysis'"
+              >
+                <i class="fas fa-chart-pie"></i> Analysis
+              </button>
+            </div>
+
+            <div v-show="activeTab === 'notes'" class="tab-content active">
+              <div class="content-card">
+                <div class="card-header">
+                  <h3><i class="fas fa-sticky-note"></i> Interview Notes</h3>
+                </div>
+                
+                <!-- Add Note Form -->
+                <div class="add-note-form">
+                  <n-input
+                    v-model:value="newNote"
+                    type="textarea"
+                    placeholder="Add a note about this candidate..."
+                    :rows="3"
+                    class="note-textarea"
+                  />
+                  <n-button type="primary" @click="addNoteHandler" :disabled="!newNote.trim()">
+                    <i class="fas fa-plus"></i> Add Note
+                  </n-button>
+                </div>
+                
+                <!-- Notes List -->
+                <div class="notes-content">
+                  <div v-if="notes.length > 0" class="notes-list">
+                    <div v-for="note in notes" :key="note.id" class="note-item">
+                      <div class="note-header">
+                        <span class="note-author">{{ note.author_name }}</span>
+                        <span class="note-date">{{ note.created_at_str }}</span>
+                        <button class="note-delete-btn" @click="deleteNoteHandler(note.id)" title="Delete note">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                      <div class="note-content">{{ note.content }}</div>
+                    </div>
+                  </div>
+                  <div v-else class="empty-notes">
+                    <i class="fas fa-sticky-note"></i>
+                    <p>No notes yet. Add your first note about this candidate.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-show="activeTab === 'resume'" class="tab-content">
+              <div class="content-card">
+                <div class="card-header">
+                  <h3><i class="fas fa-file-alt"></i> Resume Content</h3>
+                </div>
+                <div v-if="candidate.resume_str" class="resume-content">
+                  <pre>{{ candidate.resume_str }}</pre>
+                </div>
+                <p v-else>No resume content available for this candidate.</p>
+              </div>
+            </div>
+
+            <div v-show="activeTab === 'analysis'" class="tab-content">
+              <div class="content-card">
+                <div class="card-header">
+                  <h3><i class="fas fa-chart-pie"></i> Analysis Report</h3>
+                  <div class="header-actions">
+                    <span class="score-display">Score: {{ candidate.analysis_score || 'N/A' }}</span>
+                  </div>
+                </div>
+                <div v-if="candidate.descriptive_html || candidate.tabular_html" class="analysis-content">
+                  <div v-if="candidate.descriptive_html" class="analysis-section">
+                    <h4>Analysis Summary</h4>
+                    <div class="markdown-content" v-html="candidate.descriptive_html"></div>
+                  </div>
+                  <div v-if="candidate.tabular_html" class="analysis-section">
+                    <h4>Detailed Breakdown</h4>
+                    <div class="markdown-content" v-html="candidate.tabular_html"></div>
+                  </div>
+                </div>
+                <p v-else>No analysis available for this candidate.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar Card -->
+          <div class="calendar-card">
+            <div class="content-card">
+              <div class="card-header">
+                <h3><i class="fas fa-calendar-alt"></i> Interview Calendar</h3>
+                <n-button v-if="userCalendarId && !showCalendarSetup" type="default" size="small" @click="resetCalendar">
+                  <i class="fas fa-cog"></i> Change Calendar
+                </n-button>
+              </div>
+              <div class="calendar-content">
+                <div v-if="userCalendarId && !showCalendarSetup" class="calendar-embedded">
+                  <iframe 
+                    :src="`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(userCalendarId)}&ctz=America%2FNew_York&mode=WEEK&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`"
+                    style="border: 1px solid #e2e8f0; width: 100%; min-height: 600px; border-radius: 8px; background: white;"
+                    frameborder="0" 
+                    scrolling="no"
+                  ></iframe>
+                </div>
+                <div v-else class="calendar-setup">
+                  <div class="calendar-instructions">
+                    <h4><i class="fas fa-info-circle"></i> Setup Instructions</h4>
+                    <ol>
+                      <li>Open Google Calendar</li>
+                      <li>Go to Settings → Settings for my calendars</li>
+                      <li>Select your interview calendar</li>
+                      <li>Scroll down to "Integrate calendar"</li>
+                      <li>Copy the "Calendar ID" (it looks like: your-email@gmail.com or a long string)</li>
+                      <li>Paste it below</li>
+                    </ol>
+                  </div>
+                  <div class="calendar-form">
+                    <n-input 
+                      v-model:value="newCalendarId" 
+                      placeholder="Enter your Google Calendar ID"
+                      class="calendar-input"
+                    />
+                    <div class="calendar-actions">
+                      <n-button type="primary" @click="saveCalendar" :disabled="!newCalendarId.trim()">
+                        <i class="fas fa-save"></i> Save Calendar
+                      </n-button>
+                      <n-button v-if="userCalendarId" type="default" @click="showCalendarSetup = false">
+                        Cancel
+                      </n-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </n-spin>
+        <div v-else class="empty-state">
+          <p>Candidate not found.</p>
+        </div>
+      </n-card>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { NButton, NSpin, useMessage } from 'naive-ui'
+import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
+import PageBanner from '@/components/PageBanner.vue'
 
 const route = useRoute()
 const message = useMessage()
+const dialog = useDialog()
 
 const resumeId = computed(() => Number(route.params.resumeId))
 const projectId = computed(() => Number(route.params.projectId))
 
 const candidate = ref<any>(null)
+const notes = ref<any[]>([])
+const userCalendarId = ref<string | null>(null)
 const loading = ref(true)
-const activeTab = ref('resume')
-
-onMounted(async () => {
-  await loadCandidateDetail()
-  loading.value = false
+const error = ref<string | null>(null)
+const activeTab = ref('notes')
+const isEditMode = ref(false)
+const editForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  current_company: '',
+  linkedin_url: '',
+  experience_years: 0
 })
+const newNote = ref('')
+const showCalendarSetup = ref(false)
+const newCalendarId = ref('')
 
-async function loadCandidateDetail() {
+const stageOptions = [
+  { label: 'Applied', value: 'applied' },
+  { label: 'Phone Screen', value: 'phone_screen' },
+  { label: 'Technical', value: 'technical' },
+  { label: 'Interview', value: 'interview' },
+  { label: 'Final Round', value: 'final_round' },
+  { label: 'Offer Sent', value: 'offer_sent' },
+  { label: 'Offer Accepted', value: 'offer_accepted' },
+  { label: 'Offer Declined', value: 'offer_declined' },
+  { label: 'Hired', value: 'hired' },
+  { label: 'Rejected', value: 'rejected' },
+  { label: 'Not a Fit', value: 'not_a_fit' },
+  { label: 'Withdrawn', value: 'withdrawn' },
+  { label: 'Declined', value: 'declined' },
+  { label: 'Disqualified', value: 'disqualified' }
+]
+
+function formatStage(stage: string): string {
+  if (!stage) return 'N/A'
+  return stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+async function loadCandidateDetails() {
+  loading.value = true
+  error.value = null
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/candidate/${resumeId.value}/${projectId.value}`,
-      { credentials: 'include' }
-    )
+    const response = await fetch(`https://talent.api.4aitek.com/candidate/${resumeId.value}/${projectId.value}`, {
+      credentials: 'include'
+    })
     const data = await response.json()
-    
+
     if (data.success) {
       candidate.value = data.candidate
+      notes.value = data.notes || []
+      userCalendarId.value = data.user_calendar_id || null
+      
+      editForm.value = {
+        name: candidate.value.name || '',
+        email: candidate.value.email || '',
+        phone: candidate.value.phone || '',
+        location: candidate.value.location || '',
+        current_company: candidate.value.current_company || '',
+        linkedin_url: candidate.value.linkedin_url || '',
+        experience_years: candidate.value.experience_years || 0
+      }
     } else {
-      throw new Error(data.error || 'Failed to load candidate')
+      error.value = data.error || 'Failed to load candidate details.'
+      message.error(error.value)
     }
-  } catch (error: any) {
-    console.error('Error loading candidate:', error)
-    message.error('Failed to load candidate details')
+  } catch (err: any) {
+    console.error('Error loading candidate details:', err)
+    error.value = 'Network error or server unreachable.'
+    message.error(error.value)
+  } finally {
+    loading.value = false
   }
 }
 
-function formatStage(stage: string | undefined): string {
-  if (!stage) return 'N/A'
-  return stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+function toggleEditMode() {
+  if (isEditMode.value) {
+    editForm.value = {
+      name: candidate.value.name || '',
+      email: candidate.value.email || '',
+      phone: candidate.value.phone || '',
+      location: candidate.value.location || '',
+      current_company: candidate.value.current_company || '',
+      linkedin_url: candidate.value.linkedin_url || '',
+      experience_years: candidate.value.experience_years || 0
+    }
+  }
+  isEditMode.value = !isEditMode.value
 }
 
-function copyAnalysis() {
-  let analysisText = ''
-  
-  if (candidate.value?.descriptive_str) {
-    analysisText += '# Analysis Summary\n\n' + candidate.value.descriptive_str + '\n\n'
-  }
-  
-  if (candidate.value?.tabular_str) {
-    analysisText += '# Detailed Breakdown\n\n' + candidate.value.tabular_str
-  }
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(analysisText).then(() => {
-      message.success('Analysis copied to clipboard!')
-    }).catch(() => {
-      message.error('Copy failed')
+async function saveContactInfo() {
+  try {
+    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-info`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(editForm.value)
     })
-  } else {
-    message.error('Copy not supported')
+    const data = await response.json()
+
+    if (data.success) {
+      candidate.value = {
+        ...candidate.value,
+        ...editForm.value
+      }
+      isEditMode.value = false
+      message.success('Contact information updated successfully!')
+    } else {
+      message.error(data.error || 'Failed to update contact information.')
+    }
+  } catch (err: any) {
+    console.error('Error updating contact info:', err)
+    message.error('Failed to update contact information.')
   }
 }
+
+async function updateStage(event: any) {
+  const newStage = event.target.value
+  try {
+    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-stage`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ stage: newStage })
+    })
+    const data = await response.json()
+
+    if (data.success) {
+      candidate.value.current_stage = newStage
+      message.success('Stage updated successfully!')
+    } else {
+      message.error(data.error || 'Failed to update stage.')
+      event.target.value = candidate.value.current_stage
+    }
+  } catch (err: any) {
+    console.error('Error updating stage:', err)
+    message.error('Failed to update stage.')
+    event.target.value = candidate.value.current_stage
+  }
+}
+
+async function addNoteHandler() {
+  if (!newNote.value.trim()) {
+    message.warning('Please enter a note.')
+    return
+  }
+
+  try {
+    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ note: newNote.value })
+    })
+    const data = await response.json()
+
+    if (data.success) {
+      message.success('Note added successfully!')
+      newNote.value = ''
+      await loadCandidateDetails()
+    } else {
+      message.error(data.error || 'Failed to add note.')
+    }
+  } catch (err: any) {
+    console.error('Error adding note:', err)
+    message.error('Failed to add note.')
+  }
+}
+
+function deleteNoteHandler(noteId: number) {
+  dialog.warning({
+    title: 'Delete Note',
+    content: 'Are you sure you want to delete this note?',
+    positiveText: 'Delete',
+    negativeText: 'Cancel',
+    onPositiveClick: async () => {
+      try {
+        const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ note_id: noteId })
+        })
+        const data = await response.json()
+
+        if (data.success) {
+          message.success('Note deleted successfully!')
+          await loadCandidateDetails()
+        } else {
+          message.error(data.error || 'Failed to delete note.')
+        }
+      } catch (err: any) {
+        console.error('Error deleting note:', err)
+        message.error('Failed to delete note.')
+      }
+    }
+  })
+}
+
+async function saveCalendar() {
+  if (!newCalendarId.value.trim()) {
+    message.warning('Please enter a calendar ID.')
+    return
+  }
+
+  try {
+    const response = await fetch('https://talent.api.4aitek.com/user/calendar', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ google_calendar_id: newCalendarId.value })
+    })
+    const data = await response.json()
+
+    if (data.success) {
+      userCalendarId.value = newCalendarId.value
+      showCalendarSetup.value = false
+      message.success('Calendar updated successfully!')
+    } else {
+      message.error(data.error || 'Failed to update calendar.')
+    }
+  } catch (err: any) {
+    console.error('Error updating calendar:', err)
+    message.error('Failed to update calendar.')
+  }
+}
+
+function resetCalendar() {
+  showCalendarSetup.value = true
+  newCalendarId.value = userCalendarId.value || ''
+}
+
+onMounted(() => {
+  loadCandidateDetails()
+})
 </script>
 
 <style scoped>
-.hiretrac-candidate-detail {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+.candidate-detail-container {
+  min-height: calc(100vh - 60px);
+  background: #f8f9fa;
 }
 
-/* Candidate Header */
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.back-btn {
+  margin-bottom: 1.5rem;
+}
+
+.loading-state, .error-state, .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #718096;
+}
+
+.loading-state .n-spin {
+  margin-bottom: 20px;
+}
+
 .candidate-header {
   display: flex;
   justify-content: space-between;
@@ -276,7 +646,6 @@ function copyAnalysis() {
   font-weight: 500;
 }
 
-/* Summary Cards */
 .candidate-summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -313,6 +682,11 @@ function copyAnalysis() {
   margin-right: 0.5rem;
 }
 
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -339,7 +713,7 @@ function copyAnalysis() {
 .contact-item label, .status-item label {
   font-weight: 500;
   color: #64748b;
-  min-width: 120px;
+  min-width: 140px;
 }
 
 .contact-item span, .status-item span {
@@ -356,7 +730,23 @@ function copyAnalysis() {
   text-decoration: underline;
 }
 
-/* Stage and Score Badges */
+.contact-edit-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
 .stage-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -399,12 +789,28 @@ function copyAnalysis() {
   font-size: 0.875rem;
 }
 
-/* Content Tabs */
+.stage-dropdown {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.stage-dropdown:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 .content-container {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #f1f5f9;
+  margin-top: 2rem;
 }
 
 .tabs-header {
@@ -456,7 +862,86 @@ function copyAnalysis() {
   width: 100%;
 }
 
-/* Resume Content */
+.add-note-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-direction: column;
+}
+
+.note-textarea {
+  width: 100%;
+}
+
+.notes-content {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.note-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.note-author {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.note-date {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.note-delete-btn {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.note-delete-btn:hover {
+  background: #fee2e2;
+}
+
+.note-content {
+  color: #374151;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.empty-notes {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-notes i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+}
+
 .resume-content {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -475,7 +960,6 @@ function copyAnalysis() {
   color: #374151;
 }
 
-/* Analysis Content */
 .analysis-content {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -517,29 +1001,6 @@ function copyAnalysis() {
   font-weight: 600;
 }
 
-.markdown-content :deep(h1:first-child),
-.markdown-content :deep(h2:first-child),
-.markdown-content :deep(h3:first-child),
-.markdown-content :deep(h4:first-child),
-.markdown-content :deep(h5:first-child),
-.markdown-content :deep(h6:first-child) {
-  margin-top: 0;
-}
-
-.markdown-content :deep(p) {
-  margin-bottom: 1rem;
-}
-
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
-}
-
-.markdown-content :deep(li) {
-  margin-bottom: 0.5rem;
-}
-
 .markdown-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
@@ -563,43 +1024,63 @@ function copyAnalysis() {
   color: #374151;
 }
 
-.markdown-content :deep(tr:last-child td) {
-  border-bottom: none;
+.calendar-card {
+  margin-top: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  padding: 1.5rem;
 }
 
-.markdown-content :deep(strong) {
-  font-weight: 600;
-  color: #1e293b;
+.calendar-card .card-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
 }
 
-.markdown-content :deep(code) {
-  background: #f1f5f9;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
+.calendar-content {
+  padding: 1rem 0;
 }
 
-.markdown-content :deep(pre) {
+.calendar-setup {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.calendar-instructions {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 1rem;
-  overflow-x: auto;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.calendar-instructions h4 {
+  color: #1e293b;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
-.markdown-content :deep(blockquote) {
-  border-left: 4px solid #667eea;
-  padding-left: 1rem;
-  margin: 1rem 0;
-  color: #6b7280;
-  font-style: italic;
+.calendar-instructions ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #374151;
+  line-height: 1.8;
 }
 
-/* Responsive Design */
+.calendar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendar-actions {
+  display: flex;
+  gap: 1rem;
+}
+
 @media (max-width: 768px) {
-  .hiretrac-candidate-detail {
+  .candidate-detail-container {
     padding: 1rem;
   }
   
