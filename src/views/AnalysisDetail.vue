@@ -43,10 +43,6 @@
                   <div class="info-label">Description</div>
                   <div class="info-value">{{ analysis.description || 'N/A' }}</div>
                 </div>
-                <div class="info-item">
-                  <div class="info-label">Analysis ID</div>
-                  <div class="info-value">{{ analysis.analysis_id }}</div>
-                </div>
               </div>
             </div>
           </div>
