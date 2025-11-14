@@ -1,0 +1,141 @@
+/* Patent4AI - CSS Variables & Base Styles */
+
+/* Font Awesome font path fix */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/webfonts/fa-regular-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('/webfonts/fa-solid-900.woff2') format('woff2');
+}
+
+:root {
+  /* Primary Colors - Blue Gradient (from archived app) */
+  --primary-start: #3F51B5;
+  --primary-end: #2196F3;
+  --primary-gradient: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
+  
+  /* Secondary Colors - Blue to Green Gradient (from archived app) */
+  --secondary-start: #4A90E2;
+  --secondary-end: #4CAF50;
+  --secondary-gradient: linear-gradient(135deg, #4A90E2 0%, #4CAF50 100%);
+  
+  /* Button Gradient - Blue to Green (from archived app) */
+  --button-start: #3b82f6;
+  --button-end: #10b981;
+  --button-gradient: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  
+  /* Text Colors */
+  --text-dark: #1e293b;
+  --text-medium: #64748b;
+  --text-gray: #6b7280;
+  --text-light: #94a3b8;
+  
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-hover: #f1f5f9;
+  
+  /* Border Colors */
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-dark: #94a3b8;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(59, 130, 246, 0.2);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
+  
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 15px;
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-dark);
+  background: var(--bg-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* Override Naive UI theme with our colors */
+.n-button.n-button--primary-type {
+  background: var(--button-gradient) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.1) !important;
+}
+
+.n-button.n-button--primary-type:hover {
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
+  transform: translateY(-1px);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-dark);
+}
+
+/* Utility Classes */
+.gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: var(--primary-gradient);
+}
+
+.secondary-gradient-bg {
+  background: var(--secondary-gradient);
+}
+

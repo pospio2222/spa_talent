@@ -1,0 +1,20 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import router from './router'
+import App from './App.vue'
+import './assets/style.css'
+
+// Import Font Awesome
+import '@fortawesome/fontawesome-free/css/all.min.css'
+
+// Import Naive UI
+import naive from 'naive-ui'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+app.use(naive)
+
+app.mount('#app')
+
