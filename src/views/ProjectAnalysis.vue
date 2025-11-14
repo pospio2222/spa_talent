@@ -451,7 +451,7 @@ function checkAllCompleted() {
   }
 }
 
-function viewResults(resumeId: number, analysisId: number | null) {
+function viewResults(_resumeId: number, analysisId: number | null) {
   if (!analysisId) {
     message.error('Analysis ID not found')
     return
@@ -464,7 +464,10 @@ function viewResults(resumeId: number, analysisId: number | null) {
 
 function showErrorDetails(resumeId: number) {
   const resume = resumes.value.find(r => r.resume_id === resumeId)
-  if (!resume || !resume.error) return
+  if (!resume || !resume.error) {
+    message.warning('No error details available for this resume')
+    return
+  }
   
   message.error(resume.error)
 }
