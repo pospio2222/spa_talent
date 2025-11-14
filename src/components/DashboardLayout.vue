@@ -107,7 +107,7 @@
           </div>
           <div v-else-if="!isLoggedIn" class="auth-required">
             <n-card title="Authentication Required">
-              <p>Please log in to access Patent4AI features.</p>
+              <p>Please log in to access T4lent features.</p>
               <n-button type="primary" @click="handleLogin" style="margin-top: 16px;">
                 <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
                 Login

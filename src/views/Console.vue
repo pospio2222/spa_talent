@@ -1,9 +1,9 @@
 <template>
   <div class="console-container">
-    <PageBanner title="Talent AI Console" />
+    <PageBanner title="T4lent Console" />
     
     <div class="content-wrapper">
-      <n-card title="Welcome to Talent AI" class="welcome-card">
+      <n-card title="Welcome to T4lent" class="welcome-card">
         <p>AI-Powered Talent Acquisition and Candidate Intelligence Platform</p>
         <p class="subtitle">Manage recruiting projects, track candidates, and leverage AI insights</p>
       </n-card>
