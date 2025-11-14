@@ -118,11 +118,12 @@
                   </td>
                   <td>
                     <n-button 
-                      text
                       type="primary"
+                      size="small"
                       @click="viewCandidate(candidate.candidate_id)"
+                      class="view-btn"
                     >
-                      View
+                      <i class="fas fa-eye"></i> View
                     </n-button>
                   </td>
                 </tr>
@@ -162,11 +163,12 @@
                   </td>
                   <td>
                     <n-button 
-                      text
                       type="primary"
+                      size="small"
                       @click="viewCandidate(candidate.candidate_id)"
+                      class="view-btn"
                     >
-                      View
+                      <i class="fas fa-eye"></i> View
                     </n-button>
                   </td>
                 </tr>
@@ -323,7 +325,13 @@ async function migrateResumes() {
 }
 
 function viewCandidate(candidateId: number) {
-  router.push(`/candidate/${candidateId}`)
+  // Find the candidate to get both resume_id and project_id
+  const candidate = [...activeCandidates.value, ...notInterestedCandidates.value].find(
+    c => c.candidate_id === candidateId
+  )
+  if (candidate) {
+    router.push(`/candidate/${candidate.resume_id}/${projectId.value}`)
+  }
 }
 
 function getStageType(stage: string): any {
@@ -599,6 +607,23 @@ function formatStage(stage: string): string {
 .score {
   font-weight: 600;
   color: #3b82f6;
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.view-btn i {
+  font-size: 0.875rem;
 }
 
 .loading-state,
