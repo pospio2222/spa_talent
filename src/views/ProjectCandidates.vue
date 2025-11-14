@@ -130,6 +130,7 @@
                         class="move-down-btn"
                         @click="moveToNotInterested(candidate.candidate_id)"
                         title="Mark as Not Interested"
+                        style="min-width: auto; padding: 0 0.75rem;"
                       >
                         <i class="fas fa-arrow-down"></i>
                       </n-button>
@@ -187,6 +188,7 @@
                         class="move-up-btn"
                         @click="moveToActive(candidate.candidate_id)"
                         title="Mark as Applied"
+                        style="min-width: auto; padding: 0 0.75rem;"
                       >
                         <i class="fas fa-arrow-up"></i>
                       </n-button>
@@ -695,9 +697,9 @@ async function moveToActive(candidateId: number) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
+  min-width: auto;
+  width: auto;
+  padding: 0 0.75rem;
   background: #6b7280;
   color: white;
   border: none;
@@ -714,9 +716,9 @@ async function moveToActive(candidateId: number) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
+  min-width: auto;
+  width: auto;
+  padding: 0 0.75rem;
   background: #10b981;
   color: white;
   border: none;
