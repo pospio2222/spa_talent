@@ -26,11 +26,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/Candidates.vue')
       },
       {
-        path: '/upload',
-        name: 'upload',
-        component: () => import('@/views/UploadResumes.vue')
-      },
-      {
         path: '/ai-assistant',
         name: 'ai-assistant',
         component: () => import('@/views/AIAssistant.vue')
@@ -41,6 +36,26 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/CustomizeAI.vue')
       }
     ]
+  },
+  {
+    path: '/create-project',
+    name: 'create-project',
+    component: () => import('@/views/CreateProject.vue')
+  },
+  {
+    path: '/create-project-waiting/:taskId',
+    name: 'create-project-waiting',
+    component: () => import('@/views/CreateProjectWaiting.vue')
+  },
+  {
+    path: '/upload-resumes/:projectId',
+    name: 'upload-resumes',
+    component: () => import('@/views/UploadResumes.vue')
+  },
+  {
+    path: '/project-analysis/:projectId',
+    name: 'project-analysis',
+    component: () => import('@/views/ProjectAnalysis.vue')
   },
   {
     path: '/project/:projectId/candidates',

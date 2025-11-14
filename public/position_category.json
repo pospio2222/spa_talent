@@ -1,0 +1,154 @@
+{
+  "Software and Engineering": [
+    "Engineer", "Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer",
+    "DevOps Engineer", "Site Reliability Engineer", "QA Engineer", "Test Automation Engineer",
+    "Mobile App Developer", "iOS Developer", "Android Developer", "Embedded Systems Engineer",
+    "Hardware Engineer", "Network Engineer", "Security Engineer", "Cloud Engineer", "Systems Administrator",
+    "Database Administrator", "Database Engineer", "Solutions Architect", "Enterprise Architect",
+    "Software Architect", "Game Developer", "Field Engineer"
+  ],
+  "Data and Analytics": [
+    "Data Scientist", "Data Analyst", "Machine Learning Engineer", "AI Researcher", "BI Developer",
+    "ETL Developer", "Marketing Analyst", "Risk Analyst", "Supply Chain Analyst", "Treasury Analyst"
+  ],
+  "Product and Project Management": [
+    "Product Manager", "Technical Program Manager", "Scrum Master", "Project Manager", "Program Manager",
+    "Program Coordinator", "Release Manager", "Product Marketing Manager", "Product Designer"
+  ],
+  "Design and Creative": [
+    "UX Designer", "UI Designer", "UX Researcher", "Graphic Designer", "Visual Designer",
+    "Design Engineer", "Animator", "Motion Graphics Designer", "Audio Engineer", "Voice Over Artist",
+    "Creative Director", "Art Director", "Creative Producer"
+  ],
+  "IT and Infrastructure": [
+    "IT Support Specialist", "IT Technician", "Technical Support Rep", "Help Desk Analyst", "Field Technician",
+    "Service Technician", "Maintenance Technician", "Facilities Technician", "Industrial Mechanic"
+  ],
+  "Sales and Business Development": [
+    "Sales Representative", "Sales Associate", "Account Executive", "Account Manager", "Sales Manager",
+    "Regional Sales Manager", "Director of Sales", "Business Development Manager", "Inside Sales Rep",
+    "Outside Sales Rep", "Sales Operations Analyst"
+  ],
+  "Marketing and Communications": [
+    "Marketing Coordinator", "Marketing Manager", "Digital Marketing Specialist", "SEO Specialist",
+    "SEM Specialist", "Content Strategist", "Content Writer", "Copywriter", "Email Marketing Specialist",
+    "Social Media Manager", "Brand Manager", "Growth Marketing Manager", "Demand Generation Manager",
+    "Event Coordinator", "PR Specialist", "Media Buyer"
+  ],
+  "Customer Support and Success": [
+    "Customer Success Manager", "Client Services Manager", "Customer Service Representative",
+    "Call Center Agent", "Customer Service Agent", "Client Support Specialist"
+  ],
+  "Human Resources": [
+    "HR Coordinator", "HR Generalist", "HR Manager", "HR Director", "Chief People Officer", "Recruiter",
+    "Technical Recruiter", "Talent Acquisition Specialist", "Sourcer", "People Partner", "Compensation Analyst",
+    "Benefits Specialist", "HR Business Partner", "Diversity and Inclusion Specialist", "Employee Relations Manager",
+    "Organizational Development Consultant", "HRIS Analyst", "Learning and Development Specialist",
+    "Training Coordinator", "People Operations Manager"
+  ],
+  "Finance and Accounting": [
+    "Accountant", "Senior Accountant", "Accounting Clerk", "Finance Analyst", "Financial Controller",
+    "Chief Financial Officer (CFO)", "Billing Specialist", "Payroll Specialist", "Bookkeeper", "Auditor",
+    "Tax Specialist"
+  ],
+  "Legal and Compliance": [
+    "Legal Assistant", "Paralegal", "Corporate Counsel", "General Counsel", "Compliance Officer",
+    "Contracts Manager", "Regulatory Affairs Specialist"
+  ],
+  "Operations and Supply Chain": [
+    "Operations Associate", "Operations Manager", "Business Operations Analyst", "Facilities Manager",
+    "Inventory Specialist", "Procurement Specialist", "Purchasing Manager", "Logistics Coordinator",
+    "Warehouse Manager", "Order Fulfillment Specialist", "Shipping and Receiving Clerk", "Vendor Manager",
+    "Fleet Manager", "Scheduler"
+  ],
+  "Manufacturing and Skilled Trades": [
+    "Factory Worker", "Assembler", "Machine Operator", "Production Worker", "Forklift Operator",
+    "Warehouse Associate", "Material Handler", "Shipping Clerk", "Receiving Clerk", "Inventory Control Specialist",
+    "Production Supervisor", "Manufacturing Engineer", "CNC Machinist", "Quality Assurance Inspector",
+    "Quality Control Technician", "Tool and Die Maker", "Welder", "Fabricator", "Electrician",
+    "HVAC Technician", "Industrial Mechanic", "Plant Manager", "Production Planner", "Packaging Operator",
+    "EHS Specialist", "Safety Coordinator", "Janitor", "Custodian"
+  ],
+  "Healthcare and Medical": [
+    "Registered Nurse", "Nurse Practitioner", "Medical Assistant", "Healthcare Administrator",
+    "Patient Services Representative", "Phlebotomist", "Clinical Research Coordinator", "Lab Technician",
+    "Radiologic Technologist", "Medical Biller", "Medical Coder", "Pharmacist", "Pharmacy Technician",
+    "Physical Therapist", "Occupational Therapist"
+  ],
+  "Education and Training": [
+    "Teacher", "Substitute Teacher", "Instructional Designer", "Curriculum Developer",
+    "Education Program Manager", "School Counselor", "Academic Advisor", "Trainer", "Corporate Trainer",
+    "ESL Instructor"
+  ],
+  "Media and Entertainment": [
+    "Video Editor", "Photographer", "Animator", "Motion Graphics Designer", "Audio Engineer",
+    "Voice Over Artist", "Broadcast Technician"
+  ],
+  "Construction and Labor": [
+    "Construction Laborer", "Carpenter", "Electrician", "Plumber", "HVAC Installer",
+    "Heavy Equipment Operator", "Roofer", "Painter", "Welder", "Framer", "Glazier", "Concrete Finisher",
+    "Site Supervisor", "Construction Manager", "Estimator"
+  ],
+  "Transportation and Logistics": [
+    "Truck Driver", "Delivery Driver", "Courier", "Route Driver", "Dispatcher", "Utility Worker", "Surveyor"
+  ],
+  "Hospitality and Food Service": [
+    "Chef", "Sous Chef", "Line Cook", "Prep Cook", "Dishwasher", "Waiter / Waitress", "Bartender",
+    "Restaurant Manager", "Catering Manager", "Event Planner", "Hotel Front Desk Clerk", "Housekeeper",
+    "Hotel Manager", "Concierge", "Banquet Server", "Host / Hostess", "Barista", "Cashier"
+  ],
+  "Administrative and Office": [
+    "Office Manager", "Administrative Assistant", "Executive Assistant", "Receptionist", "Data Entry Clerk"
+  ],
+  "Internship and Entry Level": [
+    "Intern", "Apprentice", "Volunteer"
+  ],
+  "Consulting and Freelance": [
+    "Consultant", "Freelancer", "Entrepreneur in Residence"
+  ],
+  "Government and Non-Profit": [
+    "Policy Analyst", "Grant Writer"
+  ],
+  "Engineer": [
+    "Other Engineer"
+  ],
+  "Manager": [
+    "Other Manager"
+  ],
+  "Data": [
+    "Other Data"
+  ],
+  "Developer": [
+    "Other Developer"
+  ],
+  "Scientist": [
+    "Other Scientist"
+  ],
+  "Designer": [
+    "Other Designer"
+  ],
+  "Analyst": [
+    "Other Analyst"
+  ],
+  "Specialist": [
+    "Other Specialist"
+  ],
+  "Assistant": [
+    "Other Assistant"
+  ],
+  "Director": [
+    "Other Director"
+  ],
+    "Technician": [
+    "Other Technician"
+  ],
+  "Coordinator": [
+    "Other Coordinator"
+  ],
+  "Consultant": [
+    "Other Consultant"
+  ],
+  "Other": [
+    "Other"
+  ]
+}

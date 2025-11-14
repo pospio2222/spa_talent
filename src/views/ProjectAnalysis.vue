@@ -1,13 +1,13 @@
 <template>
   <div class="page-container">
     <PageBanner
-      title="Upload Resumes"
-      subtitle="Upload candidate resumes for analysis"
+      title="Project Analysis"
+      subtitle="View and run resume analysis"
     />
 
     <div class="content-wrapper">
-      <n-card class="upload-card">
-        <p>Upload resume functionality will be implemented here.</p>
+      <n-card class="analysis-card">
+        <p>Project analysis functionality will be implemented here.</p>
         <p>Project ID: {{ projectId }}</p>
         <n-button type="primary" @click="goBack">Back to Projects</n-button>
       </n-card>
@@ -44,10 +44,11 @@ function goBack() {
   overflow-y: auto;
 }
 
-.upload-card {
+.analysis-card {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 </style>
+
