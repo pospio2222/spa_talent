@@ -289,7 +289,7 @@ async function handleUpload() {
 }
 
 .project-info-card {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+  background: white;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   margin-bottom: 2rem;
@@ -353,7 +353,7 @@ async function handleUpload() {
 }
 
 .upload-form-card {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+  background: white;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.2);
