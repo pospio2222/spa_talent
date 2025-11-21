@@ -18,8 +18,8 @@
           <!-- Logo -->
           <div class="logo-section">
             <div class="logo-wrapper">
-              <img src="/icon_pink.png" alt="T4lent" class="logo-icon" />
-              <span v-show="!collapsed" class="logo-text">T4lent</span>
+              <img src="/icon_pink.png" alt="T4LENT" class="logo-icon" />
+              <span v-show="!collapsed" class="logo-text">T4LENT</span>
             </div>
           </div>
 
@@ -107,7 +107,7 @@
           </div>
           <div v-else-if="!isLoggedIn" class="auth-required">
             <n-card title="Authentication Required">
-              <p>Please log in to access T4lent features.</p>
+              <p>Please log in to access T4LENT features.</p>
               <n-button type="primary" @click="handleLogin" style="margin-top: 16px;">
                 <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
                 Login
