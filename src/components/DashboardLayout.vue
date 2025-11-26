@@ -47,7 +47,7 @@
               </div>
               
               <!-- Profile, Settings, and Credits Icons -->
-              <div class="user-actions">
+              <div class="user-actions" :class="{ 'collapsed': collapsed }">
                 <a 
                   href="https://4aitek.com/profile"
                   @click.prevent="openPopup('https://4aitek.com/profile')"
@@ -339,6 +339,14 @@ updateActiveKey()
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
+}
+
+/* When sidebar is collapsed, stack icons vertically */
+.user-actions.collapsed {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
 
 .icon-link {

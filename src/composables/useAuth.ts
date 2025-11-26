@@ -7,13 +7,10 @@ import { ref, onMounted } from 'vue'
 
 const API_URL = 'https://login.4aitek.com'
 
-// Use main domain for redirect URI (already registered in Cognito)
-const REDIRECT_URI = 'https://4aitek.com'
-
-// Detect if running locally (localhost or IP address)
-const isLocal = () => {
-  const hostname = window.location.hostname
-  return hostname === 'localhost' || hostname === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)
+// Use current app's domain for redirect URI
+const getRedirectUri = () => {
+  if (typeof window === 'undefined') return 'https://talent.4aitek.com'
+  return `https://${window.location.hostname}`
 }
 
 export interface AuthState {
@@ -31,14 +28,6 @@ export function useAuth() {
    * Check authentication status via cookie
    */
   const checkAuth = async (): Promise<boolean> => {
-    // Bypass auth for local/EC2 testing
-    if (isLocal()) {
-      isLoggedIn.value = true
-      username.value = 'Test User'
-      loading.value = false
-      return true
-    }
-
     try {
       const res = await fetch(`${API_URL}/verify`, {
         credentials: 'include'
@@ -76,7 +65,7 @@ export function useAuth() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ code, redirect_uri: REDIRECT_URI })
+        body: JSON.stringify({ code, redirect_uri: getRedirectUri() })
       })
 
       if (!res.ok) {
@@ -102,7 +91,9 @@ export function useAuth() {
    */
   const login = async () => {
     try {
-      const res = await fetch(`${API_URL}/cognito-login-url?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`)
+      // Use current app's domain for redirect
+      const redirectUri = getRedirectUri()
+      const res = await fetch(`${API_URL}/cognito-login-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
       const data = await res.json()
       
       if (data.login_url) {
@@ -143,12 +134,14 @@ export function useAuth() {
     if (code) {
       loading.value = true
       await exchangeToken(code)
-      // If redirected from main domain, go back to patent subdomain (production only)
-      if (window.location.hostname === '4aitek.com') {
-        window.location.href = 'https://patent.4aitek.com' + window.location.pathname
+      // Redirect to current app's domain after successful login
+      const currentHost = window.location.hostname
+      if (currentHost === '4aitek.com') {
+        // If on main domain, redirect to talent subdomain
+        window.location.href = 'https://talent.4aitek.com' + (window.location.pathname || '/')
         return
       }
-      // Clean URL after processing (local or production)
+      // Clean URL after processing (remove code parameter)
       window.history.replaceState({}, '', window.location.pathname)
       return
     }
