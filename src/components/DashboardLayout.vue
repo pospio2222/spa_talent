@@ -402,6 +402,10 @@ updateActiveKey()
   box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3) !important;
 }
 
+.login-btn i {
+  margin-right: 8px;
+}
+
 .logout-btn {
   background: rgba(148, 163, 184, 0.1) !important;
   color: var(--text-dark) !important;
