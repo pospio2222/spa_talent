@@ -106,13 +106,20 @@
             <n-spin size="large" />
           </div>
           <div v-else-if="!isLoggedIn" class="auth-required">
-            <n-card title="Authentication Required">
-              <p>Please log in to access T4LENT features.</p>
-              <n-button type="primary" @click="handleLogin" style="margin-top: 16px;">
-                <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+            <div class="wave-background">
+              <div class="air air1"></div>
+              <div class="air air2"></div>
+              <div class="air air3"></div>
+              <div class="air air4"></div>
+            </div>
+            <div class="auth-card">
+              <h1 class="auth-title">Authentication Required</h1>
+              <p class="auth-message">Please log in to access T4LENT features.</p>
+              <button class="auth-login-btn" @click="handleLogin">
+                <i class="fas fa-arrow-right"></i>
                 Login
-              </n-button>
-            </n-card>
+              </button>
+            </div>
           </div>
           <router-view v-else />
         </n-layout-content>
@@ -124,7 +131,7 @@
 <script setup lang="ts">
 import { ref, h, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { NLayout, NLayoutSider, NLayoutContent, NMenu, NButton, NSpin, NCard, MenuOption } from 'naive-ui'
+import { NLayout, NLayoutSider, NLayoutContent, NMenu, NButton, NSpin, MenuOption } from 'naive-ui'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
@@ -383,17 +390,29 @@ updateActiveKey()
   color: var(--text-medium);
 }
 
+.login-btn {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(63, 81, 181, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.login-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3) !important;
+}
+
 .logout-btn {
   background: rgba(148, 163, 184, 0.1) !important;
   color: var(--text-dark) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border: none !important;
+  border-radius: 12px !important;
   transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
   background: rgba(148, 163, 184, 0.15) !important;
   color: var(--text-dark) !important;
-  border-color: rgba(148, 163, 184, 0.3) !important;
 }
 
 .main-content {
@@ -403,8 +422,7 @@ updateActiveKey()
   overflow-y: auto;
 }
 
-.loading-container,
-.auth-required {
+.loading-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,7 +430,157 @@ updateActiveKey()
 }
 
 .auth-required {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow: hidden;
+  padding: 0;
+  margin: -16px;
+}
+
+.wave-background {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-required .air {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: url(https://1.bp.blogspot.com/-xQUc-TovqDk/XdxogmMqIRI/AAAAAAAACvI/AizpnE509UMGBcTiLJ58BC6iViPYGYQfQCLcBGAsYHQ/s1600/wave.png);
+  background-size: 1000px 100px;
+  pointer-events: none;
+}
+
+.auth-required .air.air1 {
+  animation: wave 30s linear infinite;
+  z-index: 0;
+  opacity: 1;
+  animation-delay: 0s;
+  bottom: 0;
+}
+
+.auth-required .air.air2 {
+  animation: wave2 15s linear infinite;
+  z-index: 0;
+  opacity: 0.5;
+  animation-delay: -5s;
+  bottom: 10px;
+}
+
+.auth-required .air.air3 {
+  animation: wave 30s linear infinite;
+  z-index: 0;
+  opacity: 0.2;
+  animation-delay: -2s;
+  bottom: 15px;
+}
+
+.auth-required .air.air4 {
+  animation: wave2 5s linear infinite;
+  z-index: 0;
+  opacity: 0.7;
+  animation-delay: -5s;
+  bottom: 20px;
+}
+
+@keyframes wave {
+  0% {
+    background-position-x: 0px;
+  }
+  100% {
+    background-position-x: 1000px;
+  }
+}
+
+@keyframes wave2 {
+  0% {
+    background-position-x: 0px;
+  }
+  100% {
+    background-position-x: -1000px;
+  }
+}
+
+.auth-card {
+  position: relative;
+  z-index: 10;
+  background: white;
+  border-radius: 24px;
+  padding: 48px 56px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
+  max-width: 500px;
+  width: 90%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-message {
+  font-size: 16px;
+  color: #64748b;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.auth-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.auth-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.auth-login-btn:active {
+  transform: translateY(0);
+}
+
+.auth-login-btn i {
+  font-size: 14px;
 }
 
 /* Menu styling - dark grey icons and text, smaller size */
