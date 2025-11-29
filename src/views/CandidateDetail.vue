@@ -302,7 +302,6 @@
                       <p><strong>What the Code Looks Like:</strong></p>
                       <p>The code you copy should look like this:</p>
                       <code>&lt;iframe src="https://calendar.google.com/calendar/embed?src=YOUR-EMAIL..." ...&gt;&lt;/iframe&gt;</code>
-                      <p class="important-note"><strong>Important:</strong> Copy the <strong>entire code</strong> including <code>&lt;iframe</code> at the start and <code>&lt;/iframe&gt;</code> at the end.</p>
                     </div>
 
                     <div class="troubleshooting">
@@ -1192,10 +1191,6 @@ onMounted(() => {
 }
 
 .instruction-note {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 6px;
-  padding: 1rem;
   margin: 1.5rem 0;
 }
 
@@ -1215,15 +1210,9 @@ onMounted(() => {
   word-break: break-all;
 }
 
-.important-note {
-  margin-top: 0.75rem !important;
-  color: #dc2626 !important;
-  font-weight: 500;
-}
-
 .troubleshooting {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
   padding: 1rem;
   margin-top: 1.5rem;
