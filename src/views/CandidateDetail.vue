@@ -256,14 +256,82 @@
             <div class="content-card">
               <div class="card-header">
                 <h3><i class="fas fa-calendar-alt"></i> Interview Calendar</h3>
+                <n-button v-if="userCalendarEmbedCode && !showCalendarSetup" type="default" size="small" @click="resetCalendar">
+                  <i class="fas fa-cog"></i> Change Calendar
+                </n-button>
               </div>
               <div class="calendar-content">
-                <iframe 
-                  src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FLos_Angeles&showPrint=0&src=YWRtaW5ANGFpdGVjaG5vbG9neS5jb20&src=NmU4N2YyZWIxMmVhZDUzODgwMTI0NjljNWI3MmZjOTg2ZTZjMmIzYmE3OWEzZWFjMDIzYzMzNmNmZDEzNTc1OUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23039be5&color=%23009688"
-                  style="border:solid 1px #777; width: 100%; height: 600px;"
-                  frameborder="0"
-                  scrolling="no"
-                ></iframe>
+                <div v-if="userCalendarEmbedCode && !showCalendarSetup" class="calendar-embedded">
+                  <div v-html="userCalendarEmbedCode"></div>
+                </div>
+                <div v-else class="calendar-setup">
+                  <div class="calendar-instructions">
+                    <h4><i class="fas fa-info-circle"></i> How to Connect Your Google Calendar</h4>
+                    
+                    <div class="instruction-section">
+                      <h5><strong>Step 1: Make Your Calendar Public</strong></h5>
+                      <ol>
+                        <li>Go to <a href="https://calendar.google.com" target="_blank">Google Calendar</a></li>
+                        <li>Find your calendar on the left under "My calendars"</li>
+                        <li>Click the <strong>3 dots (⋮)</strong> next to your calendar name</li>
+                        <li>Select <strong>"Settings and sharing"</strong></li>
+                        <li>Scroll to <strong>"Access permissions for events"</strong></li>
+                        <li>Check <strong>☑ Make available to public</strong></li>
+                        <li>Select <strong>"See all event details"</strong></li>
+                      </ol>
+                    </div>
+
+                    <div class="instruction-section">
+                      <h5><strong>Step 2: Get Your Calendar Embed Code</strong></h5>
+                      <ol start="8">
+                        <li>In the same Settings page, scroll down to <strong>"Integrate calendar"</strong></li>
+                        <li>Find the section called <strong>"Embed code"</strong></li>
+                        <li>Click inside the code box and <strong>copy the entire code</strong> (it starts with <code>&lt;iframe</code> and ends with <code>&lt;/iframe&gt;</code>)</li>
+                      </ol>
+                    </div>
+
+                    <div class="instruction-section">
+                      <h5><strong>Step 3: Paste Into Our App</strong></h5>
+                      <ol start="11">
+                        <li>Paste the entire embed code you copied below</li>
+                        <li>Click <strong>Save</strong></li>
+                      </ol>
+                    </div>
+
+                    <div class="instruction-note">
+                      <p><strong>What the Code Looks Like:</strong></p>
+                      <p>The code you copy should look like this:</p>
+                      <code>&lt;iframe src="https://calendar.google.com/calendar/embed?src=YOUR-EMAIL..." ...&gt;&lt;/iframe&gt;</code>
+                      <p class="important-note"><strong>Important:</strong> Copy the <strong>entire code</strong> including <code>&lt;iframe</code> at the start and <code>&lt;/iframe&gt;</code> at the end.</p>
+                    </div>
+
+                    <div class="troubleshooting">
+                      <p><strong>Troubleshooting:</strong></p>
+                      <ul>
+                        <li>❌ <strong>"Calendar not displaying"</strong> → Make sure you checked "Make available to public" in Step 6</li>
+                        <li>❌ <strong>"Invalid URL"</strong> → Make sure you copied the <strong>entire embed code</strong>, not just the URL portion</li>
+                        <li>❌ <strong>"Permission denied"</strong> → Your calendar must be set to public for embedding to work</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="calendar-form">
+                    <n-input 
+                      v-model:value="newCalendarEmbedCode" 
+                      type="textarea"
+                      placeholder="Paste your entire Google Calendar embed code here (starts with &lt;iframe and ends with &lt;/iframe&gt;)"
+                      :rows="4"
+                      class="calendar-input"
+                    />
+                    <div class="calendar-actions">
+                      <n-button type="primary" @click="saveCalendar" :disabled="!newCalendarEmbedCode.trim()">
+                        <i class="fas fa-save"></i> Save Calendar
+                      </n-button>
+                      <n-button v-if="userCalendarEmbedCode" type="default" @click="showCalendarSetup = false">
+                        Cancel
+                      </n-button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -291,6 +359,7 @@ const projectId = computed(() => Number(route.params.projectId))
 
 const candidate = ref<any>(null)
 const notes = ref<any[]>([])
+const userCalendarEmbedCode = ref<string | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const activeTab = ref('notes')
@@ -305,6 +374,8 @@ const editForm = ref({
   experience_years: 0
 })
 const newNote = ref('')
+const showCalendarSetup = ref(false)
+const newCalendarEmbedCode = ref('')
 
 const stageOptions = [
   { label: 'Applied', value: 'applied' },
@@ -340,6 +411,18 @@ async function loadCandidateDetails() {
     if (data.success) {
       candidate.value = data.candidate
       notes.value = data.notes || []
+      // Convert stored calendar ID to embed code format if needed, or use stored embed code
+      if (data.user_calendar_id) {
+        // If it's already an embed code (contains <iframe), use it directly
+        if (data.user_calendar_id.includes('<iframe')) {
+          userCalendarEmbedCode.value = data.user_calendar_id
+        } else {
+          // Otherwise, it's a legacy calendar ID - convert to embed code
+          userCalendarEmbedCode.value = `<iframe src="https://calendar.google.com/calendar/embed?src=${encodeURIComponent(data.user_calendar_id)}&ctz=America%2FLos_Angeles" style="border:solid 1px #777" width="100%" height="600" frameborder="0" scrolling="no"></iframe>`
+        }
+      } else {
+        userCalendarEmbedCode.value = null
+      }
       
       editForm.value = {
         name: candidate.value.name || '',
@@ -493,6 +576,68 @@ function deleteNoteHandler(noteId: number) {
       }
     }
   })
+}
+
+function extractCalendarSrc(embedCode: string): string | null {
+  // Extract src URL from iframe embed code
+  const srcMatch = embedCode.match(/src=["']([^"']+)["']/)
+  if (srcMatch && srcMatch[1]) {
+    return srcMatch[1]
+  }
+  // If it's already just a URL, return it
+  if (embedCode.startsWith('http')) {
+    return embedCode
+  }
+  return null
+}
+
+async function saveCalendar() {
+  if (!newCalendarEmbedCode.value.trim()) {
+    message.warning('Please paste your calendar embed code.')
+    return
+  }
+
+  // Validate that it's an iframe embed code
+  if (!newCalendarEmbedCode.value.includes('<iframe') || !newCalendarEmbedCode.value.includes('</iframe>')) {
+    message.warning('Please paste the complete embed code including &lt;iframe&gt; tags.')
+    return
+  }
+
+  // Extract src URL for storage (API expects calendar ID or URL)
+  const srcUrl = extractCalendarSrc(newCalendarEmbedCode.value)
+  if (!srcUrl) {
+    message.error('Could not extract calendar URL from embed code. Please check your code.')
+    return
+  }
+
+  try {
+    const response = await fetch('https://talent.api.4aitek.com/user/calendar', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Store the full embed code in the calendar_id field (API will need to handle this)
+      body: JSON.stringify({ google_calendar_id: newCalendarEmbedCode.value.trim() })
+    })
+    const data = await response.json()
+
+    if (data.success) {
+      userCalendarEmbedCode.value = newCalendarEmbedCode.value.trim()
+      showCalendarSetup.value = false
+      message.success('Calendar updated successfully!')
+    } else {
+      message.error(data.error || 'Failed to update calendar.')
+    }
+  } catch (err: any) {
+    console.error('Error updating calendar:', err)
+    message.error('Failed to update calendar.')
+  }
+}
+
+function resetCalendar() {
+  showCalendarSetup.value = true
+  newCalendarEmbedCode.value = userCalendarEmbedCode.value || ''
 }
 
 onMounted(() => {
@@ -968,6 +1113,148 @@ onMounted(() => {
 
 .calendar-content {
   padding: 1rem 0;
+}
+
+.calendar-embedded {
+  width: 100%;
+}
+
+.calendar-embedded :deep(iframe) {
+  width: 100%;
+  min-height: 600px;
+  border: solid 1px #777;
+  border-radius: 8px;
+}
+
+.calendar-setup {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.calendar-instructions {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.calendar-instructions h4 {
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.calendar-instructions h5 {
+  color: #1e293b;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.calendar-instructions h5:first-of-type {
+  margin-top: 0;
+}
+
+.instruction-section {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-instructions ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: #374151;
+  line-height: 1.8;
+}
+
+.calendar-instructions ol li {
+  margin-bottom: 0.5rem;
+}
+
+.calendar-instructions a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.calendar-instructions a:hover {
+  text-decoration: underline;
+}
+
+.calendar-instructions code {
+  background: #e2e8f0;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.instruction-note {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.instruction-note p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.instruction-note code {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
+.important-note {
+  margin-top: 0.75rem !important;
+  color: #dc2626 !important;
+  font-weight: 500;
+}
+
+.troubleshooting {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.troubleshooting p {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-weight: 600;
+}
+
+.troubleshooting ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+  color: #374151;
+  line-height: 1.8;
+}
+
+.troubleshooting ul li {
+  margin-bottom: 0.5rem;
+}
+
+.calendar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendar-actions {
+  display: flex;
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {
