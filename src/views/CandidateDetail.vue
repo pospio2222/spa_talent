@@ -291,9 +291,9 @@
                     </div>
 
                     <div class="instruction-section">
-                      <h5><strong>Step 3: Paste Into Our App</strong></h5>
+                      <h5><strong>Step 3: Paste Your Code</strong></h5>
                       <ol start="11">
-                        <li>Paste the entire embed code you copied below</li>
+                        <li>Paste the embed code in the box below</li>
                         <li>Click <strong>Save</strong></li>
                       </ol>
                     </div>
@@ -314,10 +314,11 @@
                     </div>
                   </div>
                   <div class="calendar-form">
+                    <label class="calendar-form-label">Copy and paste your iframe embed code below:</label>
                     <n-input 
                       v-model:value="newCalendarEmbedCode" 
                       type="textarea"
-                      placeholder="Paste your entire Google Calendar embed code here (starts with &lt;iframe and ends with &lt;/iframe&gt;)"
+                      placeholder="Paste your iframe code here (starts with &lt;iframe...&gt;)"
                       :rows="4"
                       class="calendar-input"
                     />
@@ -1236,9 +1237,20 @@ onMounted(() => {
 }
 
 .calendar-form {
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.calendar-form-label {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .calendar-actions {
