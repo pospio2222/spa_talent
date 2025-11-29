@@ -256,47 +256,14 @@
             <div class="content-card">
               <div class="card-header">
                 <h3><i class="fas fa-calendar-alt"></i> Interview Calendar</h3>
-                <n-button v-if="userCalendarId && !showCalendarSetup" type="default" size="small" @click="resetCalendar">
-                  <i class="fas fa-cog"></i> Change Calendar
-                </n-button>
               </div>
               <div class="calendar-content">
-                <div v-if="userCalendarId && !showCalendarSetup" class="calendar-embedded">
-                  <iframe 
-                    :src="`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(userCalendarId)}&ctz=America%2FNew_York&mode=WEEK&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`"
-                    style="border: 1px solid #e2e8f0; width: 100%; min-height: 600px; border-radius: 8px; background: white;"
-                    frameborder="0" 
-                    scrolling="no"
-                  ></iframe>
-                </div>
-                <div v-else class="calendar-setup">
-                  <div class="calendar-instructions">
-                    <h4><i class="fas fa-info-circle"></i> Setup Instructions</h4>
-                    <ol>
-                      <li>Open Google Calendar</li>
-                      <li>Go to Settings → Settings for my calendars</li>
-                      <li>Select your interview calendar</li>
-                      <li>Scroll down to "Integrate calendar"</li>
-                      <li>Copy the "Calendar ID" (it looks like: your-email@gmail.com or a long string)</li>
-                      <li>Paste it below</li>
-                    </ol>
-                  </div>
-                  <div class="calendar-form">
-                    <n-input 
-                      v-model:value="newCalendarId" 
-                      placeholder="Enter your Google Calendar ID"
-                      class="calendar-input"
-                    />
-                    <div class="calendar-actions">
-                      <n-button type="primary" @click="saveCalendar" :disabled="!newCalendarId.trim()">
-                        <i class="fas fa-save"></i> Save Calendar
-                      </n-button>
-                      <n-button v-if="userCalendarId" type="default" @click="showCalendarSetup = false">
-                        Cancel
-                      </n-button>
-                    </div>
-                  </div>
-                </div>
+                <iframe 
+                  src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FLos_Angeles&showPrint=0&src=YWRtaW5ANGFpdGVjaG5vbG9neS5jb20&src=NmU4N2YyZWIxMmVhZDUzODgwMTI0NjljNWI3MmZjOTg2ZTZjMmIzYmE3OWEzZWFjMDIzYzMzNmNmZDEzNTc1OUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23039be5&color=%23009688"
+                  style="border:solid 1px #777; width: 100%; height: 600px;"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
               </div>
             </div>
           </div>
@@ -324,7 +291,6 @@ const projectId = computed(() => Number(route.params.projectId))
 
 const candidate = ref<any>(null)
 const notes = ref<any[]>([])
-const userCalendarId = ref<string | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const activeTab = ref('notes')
@@ -339,8 +305,6 @@ const editForm = ref({
   experience_years: 0
 })
 const newNote = ref('')
-const showCalendarSetup = ref(false)
-const newCalendarId = ref('')
 
 const stageOptions = [
   { label: 'Applied', value: 'applied' },
@@ -376,7 +340,6 @@ async function loadCandidateDetails() {
     if (data.success) {
       candidate.value = data.candidate
       notes.value = data.notes || []
-      userCalendarId.value = data.user_calendar_id || null
       
       editForm.value = {
         name: candidate.value.name || '',
@@ -530,41 +493,6 @@ function deleteNoteHandler(noteId: number) {
       }
     }
   })
-}
-
-async function saveCalendar() {
-  if (!newCalendarId.value.trim()) {
-    message.warning('Please enter a calendar ID.')
-    return
-  }
-
-  try {
-    const response = await fetch('https://talent.api.4aitek.com/user/calendar', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ google_calendar_id: newCalendarId.value })
-    })
-    const data = await response.json()
-
-    if (data.success) {
-      userCalendarId.value = newCalendarId.value
-      showCalendarSetup.value = false
-      message.success('Calendar updated successfully!')
-    } else {
-      message.error(data.error || 'Failed to update calendar.')
-    }
-  } catch (err: any) {
-    console.error('Error updating calendar:', err)
-    message.error('Failed to update calendar.')
-  }
-}
-
-function resetCalendar() {
-  showCalendarSetup.value = true
-  newCalendarId.value = userCalendarId.value || ''
 }
 
 onMounted(() => {
@@ -1040,43 +968,6 @@ onMounted(() => {
 
 .calendar-content {
   padding: 1rem 0;
-}
-
-.calendar-setup {
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.calendar-instructions {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.calendar-instructions h4 {
-  color: #1e293b;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.calendar-instructions ol {
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #374151;
-  line-height: 1.8;
-}
-
-.calendar-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.calendar-actions {
-  display: flex;
-  gap: 1rem;
 }
 
 @media (max-width: 768px) {
