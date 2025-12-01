@@ -5,7 +5,7 @@
 
 import { ref, onMounted } from 'vue'
 
-const API_URL = 'https://login.4aitek.com'
+const API_URL = 'https://login.api.4aitek.com'
 
 // Use current app's domain for redirect URI
 const getRedirectUri = () => {
