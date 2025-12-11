@@ -7,6 +7,10 @@ const routes: RouteRecordRaw[] = [
     redirect: '/console'
   },
   {
+    path: '/login-required',
+    component: DashboardLayout
+  },
+  {
     path: '/console',
     component: DashboardLayout,
     children: [

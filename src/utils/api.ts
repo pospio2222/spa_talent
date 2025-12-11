@@ -21,6 +21,10 @@ api.interceptors.response.use(
       if (authStateUpdater) {
         authStateUpdater(false)
       }
+      // Redirect to login required page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login-required'
+      }
       // Stop promise chain
       return Promise.reject(err)
     }
