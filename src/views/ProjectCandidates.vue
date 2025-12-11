@@ -278,6 +278,10 @@ async function loadProjectInfo() {
       throw new Error(data.error || 'Failed to load project')
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      return
+    }
     console.error('Error loading project:', error)
     message.error('Failed to load project information')
   }
@@ -295,6 +299,11 @@ async function loadCandidates() {
       throw new Error(data.error || 'Failed to load candidates')
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      loadingCandidates.value = false
+      return
+    }
     console.error('Error loading candidates:', error)
     message.error('Failed to load candidates')
   } finally {
@@ -331,6 +340,12 @@ async function migrateResumes() {
       throw new Error(data.error || 'Migration failed')
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      migrating.value = false
+      migrationState.value = ''
+      return
+    }
     console.error('Migration error:', error)
     message.error(error.message || 'Failed to start migration')
     migrating.value = false
@@ -387,6 +402,10 @@ async function updateCandidateStage(candidateId: number, newStage: string) {
       message.error(data.error || 'Failed to update candidate stage')
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      return
+    }
     console.error('Error updating candidate stage:', error)
     message.error('Failed to update candidate stage')
   }

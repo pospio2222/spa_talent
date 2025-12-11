@@ -437,6 +437,10 @@ async function loadCandidateDetails() {
       message.error(error.value || 'Failed to load candidate details.')
     }
   } catch (err: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (err?.response?.status === 401) {
+      return
+    }
     console.error('Error loading candidate details:', err)
     error.value = 'Network error or server unreachable.'
     message.error('Network error or server unreachable.')

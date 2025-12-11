@@ -169,6 +169,10 @@ async function loadProjectInfo() {
       project.value = data.project
     }
   } catch (err: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (err?.response?.status === 401) {
+      return
+    }
     message.error('Failed to load project information')
     console.error('Error loading project:', err)
   }
@@ -248,6 +252,11 @@ async function handleUpload() {
       throw new Error(data.error || 'Upload failed')
     }
   } catch (err: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (err?.response?.status === 401) {
+      isUploading.value = false
+      return
+    }
     const errorMsg = err.message || 'Failed to upload resumes'
     error.value = errorMsg
     message.error(errorMsg)

@@ -214,6 +214,11 @@ async function loadResumes() {
       }
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      isLoading.value = false
+      return
+    }
     console.error('Error loading resumes:', error)
     message.error(error.message || 'Failed to load resumes')
   } finally {

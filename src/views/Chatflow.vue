@@ -116,6 +116,10 @@ async function loadProjectInfo() {
         projectDetails.value = data.description || 'No description available'
       }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      return
+    }
     console.error('Failed to load project info:', error)
     projectName.value = `Project ${projectId.value}`
     projectDetails.value = 'No description available'

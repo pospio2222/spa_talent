@@ -149,6 +149,11 @@ async function loadDashboard() {
       throw new Error(data.error || 'Failed to load dashboard')
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      loading.value = false
+      return
+    }
     console.error('Error loading dashboard:', error)
     message.error('Failed to load candidates dashboard')
   } finally {

@@ -108,6 +108,10 @@ async function loadProjects() {
       }))
     }
   } catch (error: any) {
+    // Don't show error for 401 - interceptor handles it
+    if (error?.response?.status === 401) {
+      return
+    }
     console.error('Error loading projects:', error)
     message.error('Failed to load projects')
   } finally {
