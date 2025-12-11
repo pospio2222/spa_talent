@@ -254,7 +254,7 @@ async function handleUpload() {
   } catch (err: any) {
     // Don't show error for 401 - interceptor handles it
     if (err?.response?.status === 401) {
-      isUploading.value = false
+      uploading.value = false
       return
     }
     const errorMsg = err.message || 'Failed to upload resumes'
