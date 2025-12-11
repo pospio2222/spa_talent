@@ -39,6 +39,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NButton, NAlert, NIcon, useMessage } from 'naive-ui'
 import { RefreshOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -52,13 +53,8 @@ let pollInterval: number | null = null
 
 async function checkTaskStatusOnce(id: string) {
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/task-status/${id}`, {
-      credentials: 'include'
-    })
-    if (!response.ok) {
-      throw new Error(`API responded with status ${response.status}`)
-    }
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/task-status/${id}`)
+    const data = response.data
     updateStatus(data)
   } catch (err: any) {
     console.error('Initial status check failed:', err)
@@ -79,16 +75,8 @@ function checkTaskStatus(id: string) {
     }
 
     try {
-      const response = await fetch(`https://talent.api.4aitek.com/task-status/${id}`, {
-        credentials: 'include'
-      })
-
-      if (!response.ok) {
-        console.warn('Status check failed, will retry:', response.status)
-        return
-      }
-
-      const data = await response.json()
+      const response = await api.get(`https://talent.api.4aitek.com/task-status/${id}`)
+      const data = response.data
       updateStatus(data)
 
       if (data.state === 'SUCCESS' || data.state === 'FAILURE') {

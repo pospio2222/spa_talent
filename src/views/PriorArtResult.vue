@@ -94,6 +94,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { NSpin, useMessage } from 'naive-ui'
 import { marked } from 'marked'
+import api from '@/utils/api'
 
 const route = useRoute()
 const message = useMessage()
@@ -139,18 +140,8 @@ async function loadAnalysisDetails() {
   const patentId = route.params.patentId as string
 
   try {
-    const response = await fetch(
-      `https://patent.api.4aitek.com/api/patent-analysis-details/${analysisId}/${patentId}`,
-      {
-        credentials: 'include'
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error('Failed to load patent analysis details')
-    }
-
-    const data = await response.json()
+    const response = await api.get(`https://patent.api.4aitek.com/api/patent-analysis-details/${analysisId}/${patentId}`)
+    const data = response.data
 
     if (data.success) {
       analysisData.value = data.analysis

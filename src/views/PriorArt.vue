@@ -132,6 +132,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NCard, NForm, NButton, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const router = useRouter()
 const message = useMessage()
@@ -200,15 +201,14 @@ async function handleSubmit() {
     formData.append('analysis_title', analysisTitle.value.trim())
     formData.append('invention_disclosure', selectedFile.value!)
 
-    const response = await fetch('https://patent.api.4aitek.com/prior-art-search', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
+    const response = await api.post('https://patent.api.4aitek.com/prior-art-search', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     })
+    const data = response.data
 
-    const data = await response.json()
-
-    if (response.ok && data.success) {
+    if (data.success) {
       message.success('Analysis started! Redirecting to status page...')
       router.push(`/prior-art-waiting/${data.task_id}`)
     } else {
@@ -225,21 +225,12 @@ async function handleSubmit() {
 async function loadAnalyses() {
   isLoadingAnalyses.value = true
   try {
-    const response = await fetch('https://patent.api.4aitek.com/prior-art-search', {
-      credentials: 'include'
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      if (data.success) {
-        analyses.value = data.analyses || []
-      } else {
-        console.warn('API returned success=false:', data)
-      }
+    const response = await api.get('https://patent.api.4aitek.com/prior-art-search')
+    const data = response.data
+    if (data.success) {
+      analyses.value = data.analyses || []
     } else {
-      const errorText = await response.text()
-      console.error(`Failed to load analyses: ${response.status} ${response.statusText}`, errorText)
-      // Don't show error message to user, just log it
+      console.warn('API returned success=false:', data)
     }
   } catch (error: any) {
     console.error('Error loading analyses:', error)
@@ -263,14 +254,10 @@ function deleteAnalysis(analysisId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await fetch(`https://patent.api.4aitek.com/api/delete-analysis/${analysisId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        })
+        const response = await api.delete(`https://patent.api.4aitek.com/api/delete-analysis/${analysisId}`)
+        const data = response.data
 
-        const data = await response.json()
-
-        if (response.ok && data.success) {
+        if (data.success) {
           message.success('Analysis deleted successfully')
           analyses.value = analyses.value.filter(a => a.id !== analysisId)
         } else {

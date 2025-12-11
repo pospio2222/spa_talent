@@ -115,6 +115,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NSpin, useDialog, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const router = useRouter()
 const dialog = useDialog()
@@ -171,15 +172,8 @@ async function loadProjects() {
   error.value = ''
 
   try {
-    const response = await fetch('https://talent.api.4aitek.com/projects', {
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to load projects: ${response.status}`)
-    }
-
-    const data = await response.json()
+    const response = await api.get('https://talent.api.4aitek.com/projects')
+    const data = response.data
     projects.value = data.projects || []
   } catch (err: any) {
     console.error('Error loading projects:', err)
@@ -229,13 +223,12 @@ async function deleteProject(projectId: number) {
     const formData = new FormData()
     formData.append('project_id', projectId.toString())
 
-    const response = await fetch('https://talent.api.4aitek.com/projects/delete', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
+    const response = await api.post('https://talent.api.4aitek.com/projects/delete', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     })
-
-    const data = await response.json()
+    const data = response.data
 
     if (data.success) {
       message.success('Project deleted successfully')

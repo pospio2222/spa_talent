@@ -111,6 +111,7 @@ import {
   GridOutline, ReaderOutline, CopyOutline, WarningOutline 
 } from '@vicons/ionicons5'
 import { marked } from 'marked'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -175,15 +176,8 @@ async function loadAnalysisDetails() {
   error.value = null
   
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/analysis/${analysisId.value}`, {
-      credentials: 'include'
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load analysis: ${response.status}`)
-    }
-    
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/analysis/${analysisId.value}`)
+    const data = response.data
     
     if (data.success) {
       analysis.value = data.analysis

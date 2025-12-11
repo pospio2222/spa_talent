@@ -208,6 +208,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NSpin, NTag, NSelect, useMessage } from 'naive-ui'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -267,11 +268,8 @@ onMounted(async () => {
 
 async function loadProjectInfo() {
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/projects/${projectId.value}/candidates/page`,
-      { credentials: 'include' }
-    )
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/candidates/page`)
+    const data = response.data
     
     if (data.success) {
       project.value = data.project
@@ -288,11 +286,8 @@ async function loadProjectInfo() {
 async function loadCandidates() {
   loadingCandidates.value = true
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/projects/${projectId.value}/candidates/list`,
-      { credentials: 'include' }
-    )
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/candidates/list`)
+    const data = response.data
     
     if (data.success) {
       candidates.value = data.candidates
@@ -314,14 +309,10 @@ async function migrateResumes() {
   migrationState.value = 'processing'
   
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/projects/${projectId.value}/extract-personal-info?update_existing=${updateExisting.value}`,
-      {
-        method: 'POST',
-        credentials: 'include'
-      }
-    )
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/projects/${projectId.value}/extract-personal-info`, null, {
+      params: { update_existing: updateExisting.value }
+    })
+    const data = response.data
     
     if (data.success) {
       if (data.task_ids && data.task_ids.length > 0) {
@@ -380,16 +371,10 @@ function formatStage(stage: string): string {
 
 async function updateCandidateStage(candidateId: number, newStage: string) {
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/candidate/${candidateId}/update-stage`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage: newStage })
-      }
-    )
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidateId}/update-stage`, {
+      stage: newStage
+    })
+    const data = response.data
     
     if (data.success) {
       // Update local state

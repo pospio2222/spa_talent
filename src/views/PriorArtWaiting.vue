@@ -72,6 +72,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NButton, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -84,15 +85,8 @@ const maxPolls = 300 // 25 minutes max (300 * 5 seconds)
 
 async function checkTaskStatus(taskId: string) {
   try {
-    const response = await fetch(`https://patent.api.4aitek.com/api/task-status/${taskId}`, {
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to check task status')
-    }
-
-    const data = await response.json()
+    const response = await api.get(`https://patent.api.4aitek.com/api/task-status/${taskId}`)
+    const data = response.data
 
     if (data.state === 'SUCCESS' && data.analysis_id) {
       // Analysis complete, redirect to results

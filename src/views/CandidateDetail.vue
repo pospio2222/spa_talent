@@ -349,6 +349,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const route = useRoute()
 const message = useMessage()
@@ -403,10 +404,8 @@ async function loadCandidateDetails() {
   loading.value = true
   error.value = null
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/candidate/${resumeId.value}/${projectId.value}`, {
-      credentials: 'include'
-    })
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/candidate/${resumeId.value}/${projectId.value}`)
+    const data = response.data
 
     if (data.success) {
       candidate.value = data.candidate
@@ -463,15 +462,8 @@ function toggleEditMode() {
 
 async function saveContactInfo() {
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-info`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(editForm.value)
-    })
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-info`, editForm.value)
+    const data = response.data
 
     if (data.success) {
       candidate.value = {
@@ -492,15 +484,8 @@ async function saveContactInfo() {
 async function updateStage(event: any) {
   const newStage = event.target.value
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-stage`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ stage: newStage })
-    })
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-stage`, { stage: newStage })
+    const data = response.data
 
     if (data.success) {
       candidate.value.current_stage = newStage
@@ -523,15 +508,8 @@ async function addNoteHandler() {
   }
 
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ note: newNote.value })
-    })
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, { note: newNote.value })
+    const data = response.data
 
     if (data.success) {
       message.success('Note added successfully!')
@@ -554,15 +532,10 @@ function deleteNoteHandler(noteId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await fetch(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
-          method: 'DELETE',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ note_id: noteId })
+        const response = await api.delete(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
+          data: { note_id: noteId }
         })
-        const data = await response.json()
+        const data = response.data
 
         if (data.success) {
           message.success('Note deleted successfully!')
@@ -611,16 +584,10 @@ async function saveCalendar() {
   }
 
   try {
-    const response = await fetch('https://talent.api.4aitek.com/user/calendar', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      // Store the full embed code in the calendar_id field (API will need to handle this)
-      body: JSON.stringify({ google_calendar_id: newCalendarEmbedCode.value.trim() })
+    const response = await api.post('https://talent.api.4aitek.com/user/calendar', {
+      google_calendar_id: newCalendarEmbedCode.value.trim()
     })
-    const data = await response.json()
+    const data = response.data
 
     if (data.success) {
       userCalendarEmbedCode.value = newCalendarEmbedCode.value.trim()

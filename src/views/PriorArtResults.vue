@@ -149,6 +149,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NButton, NSpin, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -182,15 +183,8 @@ async function loadAnalysisResults() {
   const analysisId = route.params.analysisId as string
   
   try {
-    const response = await fetch(`https://patent.api.4aitek.com/prior-art-results/${analysisId}`, {
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to load analysis results')
-    }
-
-    const data = await response.json()
+    const response = await api.get(`https://patent.api.4aitek.com/prior-art-results/${analysisId}`)
+    const data = response.data
 
     if (data.success) {
       analysisData.value = data.analysis
@@ -228,16 +222,8 @@ async function runSimilarityAnalysis(usptoId: number) {
   }
 
   try {
-    const response = await fetch(
-      `https://patent.api.4aitek.com/api/run-similarity-analysis/${analysisId}/${usptoId}`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      }
-    )
-
-    const data = await response.json()
+    const response = await api.post(`https://patent.api.4aitek.com/api/run-similarity-analysis/${analysisId}/${usptoId}`)
+    const data = response.data
 
     if (!data.success) {
       processingPatents.value.delete(usptoId)
@@ -254,14 +240,8 @@ async function checkPatentStatus(usptoId: number) {
   const analysisId = route.params.analysisId as string
 
   try {
-    const response = await fetch(
-      `https://patent.api.4aitek.com/api/patent-analysis-status/${analysisId}/${usptoId}`,
-      {
-        credentials: 'include'
-      }
-    )
-
-    const data = await response.json()
+    const response = await api.get(`https://patent.api.4aitek.com/api/patent-analysis-status/${analysisId}/${usptoId}`)
+    const data = response.data
 
     if (data.success) {
       if (data.status === 'completed') {

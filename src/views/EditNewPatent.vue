@@ -176,6 +176,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, useMessage } from 'naive-ui'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -308,12 +309,8 @@ async function loadPatentData() {
     return
   }
   
-  const response = await fetch(
-    `https://patent.api.4aitek.com/api/get-patent-data/${projectId.value}`,
-    { credentials: 'include' }
-  )
-  
-  const data = await response.json()
+  const response = await api.get(`https://patent.api.4aitek.com/api/get-patent-data/${projectId.value}`)
+  const data = response.data
   
   if (data.success && data.data) {
     currentVersion.value = data.data.current_version
@@ -347,17 +344,10 @@ async function saveManualEdit() {
   isSaving.value = true
   
   try {
-    const response = await fetch(
-      `https://patent.api.4aitek.com/api/save-edit/${projectId.value}`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updated_claims: updatedClaims })
-      }
-    )
-    
-    const data = await response.json()
+    const response = await api.post(`https://patent.api.4aitek.com/api/save-edit/${projectId.value}`, {
+      updated_claims: updatedClaims
+    })
+    const data = response.data
     
     if (data.success) {
       message.success(data.message || 'Successfully updated edit')
@@ -414,16 +404,12 @@ async function handleAIImprovement(
       formData.append('improvement_doc', improvementDoc)
     }
     
-    const response = await fetch(
-      'https://patent.api.4aitek.com/api/process-patent-improvement',
-      {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
+    const response = await api.post('https://patent.api.4aitek.com/api/process-patent-improvement', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    )
-    
-    const data = await response.json()
+    })
+    const data = response.data
     
     if (data.success && data.task_id) {
       // Clear form
@@ -469,16 +455,12 @@ async function handleAskAI(
       formData.append('context_doc', contextDoc)
     }
     
-    const response = await fetch(
-      'https://patent.api.4aitek.com/api/ask-ai-about-patent',
-      {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
+    const response = await api.post('https://patent.api.4aitek.com/api/ask-ai-about-patent', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    )
-    
-    const data = await response.json()
+    })
+    const data = response.data
     
     if (data.success && data.task_id) {
       // Clear form
@@ -516,12 +498,8 @@ function pollAskAIStatus(taskId: string) {
     }
     
     try {
-      const response = await fetch(
-        `https://patent.api.4aitek.com/api/task-status/${taskId}`,
-        { credentials: 'include' }
-      )
-      
-      const data = await response.json()
+      const response = await api.get(`https://patent.api.4aitek.com/api/task-status/${taskId}`)
+      const data = response.data
       
       if (data.state === 'SUCCESS' && data.result) {
         clearInterval(interval)
@@ -559,12 +537,8 @@ function startTaskPolling(taskId: string) {
     }
     
     try {
-      const response = await fetch(
-        `https://patent.api.4aitek.com/api/task-status/${taskId}`,
-        { credentials: 'include' }
-      )
-      
-      const data = await response.json()
+      const response = await api.get(`https://patent.api.4aitek.com/api/task-status/${taskId}`)
+      const data = response.data
       
       if (data.state === 'SUCCESS') {
         if (pollInterval) clearInterval(pollInterval)

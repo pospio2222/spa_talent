@@ -112,6 +112,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NSpin, NButton, useMessage } from 'naive-ui'
+import api from '@/utils/api'
 
 const router = useRouter()
 const message = useMessage()
@@ -138,15 +139,8 @@ onMounted(async () => {
 async function loadDashboard() {
   loading.value = true
   try {
-    const response = await fetch('https://talent.api.4aitek.com/candidates/dashboard', {
-      credentials: 'include'
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch dashboard data')
-    }
-    
-    const data = await response.json()
+    const response = await api.get('https://talent.api.4aitek.com/candidates/dashboard')
+    const data = response.data
     
     if (data.success) {
       projects.value = data.projects

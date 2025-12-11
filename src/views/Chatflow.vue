@@ -63,6 +63,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
+import api from '@/utils/api'
 
 const route = useRoute()
 const message = useMessage()
@@ -108,18 +109,12 @@ async function initializeChat() {
 
 async function loadProjectInfo() {
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/chatflow/project/${projectId.value}`,
-      { credentials: 'include' }
-    )
-
-    if (response.ok) {
-      const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/chatflow/project/${projectId.value}`)
+    const data = response.data
       if (data.success) {
         projectName.value = data.project_name || `Project ${projectId.value}`
         projectDetails.value = data.description || 'No description available'
       }
-    }
   } catch (error: any) {
     console.error('Failed to load project info:', error)
     projectName.value = `Project ${projectId.value}`
@@ -143,17 +138,11 @@ async function sendMessage() {
   isTyping.value = true
 
   try {
-    const response = await fetch('https://talent.api.4aitek.com/chatflow/chat', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project_id: projectId.value,
-        message: userMessage
-      })
+    const response = await api.post('https://talent.api.4aitek.com/chatflow/chat', {
+      project_id: projectId.value,
+      message: userMessage
     })
-
-    const data = await response.json()
+    const data = response.data
 
     if (data.success && data.task_id) {
       pollTaskStatus(data.task_id)
@@ -182,11 +171,8 @@ async function sendMessage() {
 async function pollTaskStatus(taskId: string) {
   const interval = setInterval(async () => {
     try {
-      const response = await fetch(
-        `https://talent.api.4aitek.com/task-status/${taskId}`,
-        { credentials: 'include' }
-      )
-      const data = await response.json()
+      const response = await api.get(`https://talent.api.4aitek.com/task-status/${taskId}`)
+      const data = response.data
 
       if (data.state === 'SUCCESS') {
         clearInterval(interval)

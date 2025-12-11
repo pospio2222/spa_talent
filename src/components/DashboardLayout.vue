@@ -133,6 +133,7 @@ import { ref, h, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NLayout, NLayoutSider, NLayoutContent, NMenu, NButton, NSpin, MenuOption } from 'naive-ui'
 import { useAuth } from '@/composables/useAuth'
+import api from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -152,15 +153,10 @@ const fetchCredits = async () => {
   }
 
   try {
-    const res = await fetch(`${CREDITS_API_URL}/api/credits`, {
-      credentials: 'include'
-    })
+    const res = await api.get(`${CREDITS_API_URL}/api/credits`)
     
-    if (res.ok) {
-      const data = await res.json()
-      if (data.success) {
-        credits.value = data.credits
-      }
+    if (res.data.success) {
+      credits.value = res.data.credits
     }
   } catch (err) {
     console.error('Failed to fetch credits:', err)

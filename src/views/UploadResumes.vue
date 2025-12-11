@@ -140,6 +140,7 @@ import {
   ArrowBackOutline
 } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -162,15 +163,8 @@ onMounted(async () => {
 
 async function loadProjectInfo() {
   try {
-    const response = await fetch(`${apiUrl}/projects/${projectId.value}/resumes`, {
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to load project')
-    }
-
-    const data = await response.json()
+    const response = await api.get(`${apiUrl}/projects/${projectId.value}/resumes`)
+    const data = response.data
     if (data.success && data.project) {
       project.value = data.project
     }
@@ -239,17 +233,12 @@ async function handleUpload() {
       formData.append('resumes', file)
     })
 
-    const response = await fetch(`${apiUrl}/projects/${projectId.value}/upload-resumes`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
+    const response = await api.post(`${apiUrl}/projects/${projectId.value}/upload-resumes`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     })
-
-    if (!response.ok) {
-      throw new Error('Upload failed')
-    }
-
-    const data = await response.json()
+    const data = response.data
     
     if (data.success && data.task_id) {
       message.success('Resume upload started')

@@ -35,6 +35,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NAlert, NButton, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,15 +62,8 @@ onUnmounted(() => {
 function checkTaskStatus() {
   pollInterval.value = window.setInterval(async () => {
     try {
-      const response = await fetch(`${apiUrl}/task-status/${taskId.value}`, {
-        credentials: 'include'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to check task status')
-      }
-
-      const data = await response.json()
+      const response = await api.get(`${apiUrl}/task-status/${taskId.value}`)
+      const data = response.data
       updateStatus(data)
     } catch (err: any) {
       console.error('Error checking task status:', err)

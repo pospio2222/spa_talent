@@ -139,6 +139,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NSpin, NSwitch, NIcon, useMessage } from 'naive-ui'
 import { PlayCircleOutline, FolderOpenOutline, InformationCircleOutline, ArrowBackOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -199,15 +200,8 @@ function formatStatus(status: string | null): string {
 async function loadResumes() {
   isLoading.value = true
   try {
-    const response = await fetch(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes`, {
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to load resumes: ${response.status}`)
-    }
-
-    const data = await response.json()
+    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes`)
+    const data = response.data
     if (data.success) {
       resumes.value = data.resumes
       project.value = data.project
@@ -261,22 +255,16 @@ async function processResume(resume: Resume) {
   // Check for existing analysis first (unless override is enabled)
   if (!overrideExisting.value) {
     try {
-      const checkResponse = await fetch(
-        `https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/check-existing`,
-        { credentials: 'include' }
-      )
-      
-      if (checkResponse.ok) {
-        const checkData = await checkResponse.json()
-        if (checkData.exists) {
-          // Use existing results
-          updateResumeStatus(resume.resume_id, 'completed', {
-            score: checkData.score,
-            analysis_id: checkData.analysis_id
-          })
-          checkAllCompleted()
-          return
-        }
+      const checkResponse = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/check-existing`)
+      const checkData = checkResponse.data
+      if (checkData.exists) {
+        // Use existing results
+        updateResumeStatus(resume.resume_id, 'completed', {
+          score: checkData.score,
+          analysis_id: checkData.analysis_id
+        })
+        checkAllCompleted()
+        return
       }
     } catch (error) {
       console.error('Error checking existing analysis:', error)
@@ -292,21 +280,10 @@ async function runAnalysis(resume: Resume) {
   updateResumeStatus(resume.resume_id, 'processing')
   
   try {
-    const response = await fetch(
-      `https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/analyze`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ override: overrideExisting.value })
-      }
-    )
-    
-    if (!response.ok) {
-      throw new Error(`Analysis failed: ${response.status}`)
-    }
-    
-    const data = await response.json()
+    const response = await api.post(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/analyze`, {
+      override: overrideExisting.value
+    })
+    const data = response.data
     
     if (data.success) {
       if (data.task_id) {
@@ -343,17 +320,8 @@ async function runAnalysis(resume: Resume) {
 function startTaskPolling(resumeId: number, taskId: string) {
   const pollInterval = window.setInterval(async () => {
     try {
-      const response = await fetch(
-        `https://talent.api.4aitek.com/task-status/${taskId}`,
-        { credentials: 'include' }
-      )
-      
-      if (!response.ok) {
-        console.warn('Status check failed, will retry:', response.status)
-        return
-      }
-      
-      const data = await response.json()
+      const response = await api.get(`https://talent.api.4aitek.com/task-status/${taskId}`)
+      const data = response.data
       
       if (data.state === 'SUCCESS') {
         clearInterval(pollInterval)
@@ -398,31 +366,25 @@ function startPollingForExistingJobs() {
     }
     
     try {
-      const response = await fetch(
-        `https://talent.api.4aitek.com/projects/${projectId.value}/check-processing-jobs`,
-        { credentials: 'include' }
-      )
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.resumes) {
-          // Update resume statuses
-          data.resumes.forEach((serverResume: any) => {
-            const localResume = resumes.value.find(r => r.resume_id === serverResume.resume_id)
-            if (localResume && localResume.analysis_status === 'processing') {
-              if (serverResume.analysis_status === 'completed') {
-                updateResumeStatus(localResume.resume_id, 'completed', {
-                  score: serverResume.analysis_score,
-                  analysis_id: serverResume.analysis_id
-                })
-              } else if (serverResume.analysis_status === 'error') {
-                updateResumeStatus(localResume.resume_id, 'error', {
-                  error: 'Analysis failed'
-                })
-              }
+      const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/check-processing-jobs`)
+      const data = response.data
+      if (data.success && data.resumes) {
+        // Update resume statuses
+        data.resumes.forEach((serverResume: any) => {
+          const localResume = resumes.value.find(r => r.resume_id === serverResume.resume_id)
+          if (localResume && localResume.analysis_status === 'processing') {
+            if (serverResume.analysis_status === 'completed') {
+              updateResumeStatus(localResume.resume_id, 'completed', {
+                score: serverResume.analysis_score,
+                analysis_id: serverResume.analysis_id
+              })
+            } else if (serverResume.analysis_status === 'error') {
+              updateResumeStatus(localResume.resume_id, 'error', {
+                error: 'Analysis failed'
+              })
             }
-          })
-        }
+          }
+        })
       }
     } catch (error) {
       console.error('Error checking processing jobs:', error)

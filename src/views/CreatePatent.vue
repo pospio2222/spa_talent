@@ -135,6 +135,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NCard, NForm, NButton, NSpin, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import api from '@/utils/api'
 
 const router = useRouter()
 const message = useMessage()
@@ -203,15 +204,14 @@ async function handleSubmit() {
     formData.append('patent_title', patentTitle.value.trim())
     formData.append('patent_disclosure', selectedFile.value!)
 
-    const response = await fetch('https://patent.api.4aitek.com/start-patent-creation', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
+    const response = await api.post('https://patent.api.4aitek.com/start-patent-creation', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     })
+    const data = response.data
 
-    const data = await response.json()
-
-    if (response.ok && data.success) {
+    if (data.success) {
       message.success('Patent creation started! Redirecting to status page...')
       router.push(`/create-patent-waiting/${data.task_id}`)
     } else {
@@ -228,15 +228,10 @@ async function handleSubmit() {
 async function loadProjects() {
   isLoadingProjects.value = true
   try {
-    const response = await fetch('https://patent.api.4aitek.com/patent-projects', {
-      credentials: 'include'
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      if (data.success) {
-        projects.value = data.projects || []
-      }
+    const response = await api.get('https://patent.api.4aitek.com/patent-projects')
+    const data = response.data
+    if (data.success) {
+      projects.value = data.projects || []
     }
   } catch (error: any) {
     console.error('Error loading projects:', error)
@@ -259,14 +254,10 @@ function deleteProject(projectId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await fetch(`https://patent.api.4aitek.com/api/delete-patent-project/${projectId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        })
+        const response = await api.delete(`https://patent.api.4aitek.com/api/delete-patent-project/${projectId}`)
+        const data = response.data
 
-        const data = await response.json()
-
-        if (response.ok && data.success) {
+        if (data.success) {
           message.success('Project deleted successfully')
           projects.value = projects.value.filter(p => p.id !== projectId)
         } else {

@@ -41,6 +41,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
+import api from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,18 +70,13 @@ onUnmounted(() => {
 
 async function checkTaskStatusOnce(taskId: string) {
   try {
-    const response = await fetch(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`, {
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      if (data.state === 'SUCCESS' && data.project_id) {
-        message.success('Patent claims generated successfully!')
-        router.push(`/edit-patent/${data.project_id}`)
-      } else if (data.state === 'FAILURE') {
-        showError(data.error || 'Patent claims generation failed')
-      }
+    const response = await api.get(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`)
+    const data = response.data
+    if (data.state === 'SUCCESS' && data.project_id) {
+      message.success('Patent claims generated successfully!')
+      router.push(`/edit-patent/${data.project_id}`)
+    } else if (data.state === 'FAILURE') {
+      showError(data.error || 'Patent claims generation failed')
     }
   } catch (error: any) {
     // Ignore errors on initial check, polling will handle it
@@ -101,17 +97,8 @@ function checkTaskStatus(taskId: string) {
     }
     
     try {
-      const response = await fetch(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`, {
-        credentials: 'include'
-      })
-      
-      if (!response.ok) {
-        // Don't stop polling on temporary errors, just log and continue
-        console.warn('Status check failed, will retry:', response.status)
-        return
-      }
-      
-      const data = await response.json()
+      const response = await api.get(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`)
+      const data = response.data
       
       if (data.state === 'SUCCESS' && data.project_id) {
         if (pollInterval) {

@@ -4,6 +4,7 @@
  */
 
 import { ref, onMounted } from 'vue'
+import api, { setAuthStateUpdater } from '@/utils/api'
 
 const API_URL = 'https://login.api.4aitek.com'
 
@@ -29,18 +30,13 @@ export function useAuth() {
    */
   const checkAuth = async (): Promise<boolean> => {
     try {
-      const res = await fetch(`${API_URL}/verify`, {
-        credentials: 'include'
-      })
+      const res = await api.get(`${API_URL}/verify`)
       
-      if (res.ok) {
-        const data = await res.json()
-        if (data.valid) {
-          isLoggedIn.value = true
-          username.value = data.username || 'User'
-          loading.value = false
-          return true
-        }
+      if (res.data.valid) {
+        isLoggedIn.value = true
+        username.value = res.data.username || 'User'
+        loading.value = false
+        return true
       }
       
       isLoggedIn.value = false
@@ -61,28 +57,20 @@ export function useAuth() {
    */
   const exchangeToken = async (code: string) => {
     try {
-      const res = await fetch(`${API_URL}/auth/callback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ code, redirect_uri: getRedirectUri() })
+      const res = await api.post(`${API_URL}/auth/callback`, {
+        code,
+        redirect_uri: getRedirectUri()
       })
-
-      if (!res.ok) {
-        throw new Error(`Token exchange failed: ${res.statusText}`)
-      }
-
-      const data = await res.json()
       
-      if (data.success) {
+      if (res.data.success) {
         await checkAuth()
         return { success: true }
       } else {
-        throw new Error(data.message || 'Token exchange failed')
+        throw new Error(res.data.message || 'Token exchange failed')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login failed:', err)
-      return { success: false, error: (err as Error).message }
+      return { success: false, error: err?.response?.data?.detail || err?.message || 'Token exchange failed' }
     }
   }
 
@@ -93,11 +81,12 @@ export function useAuth() {
     try {
       // Use current app's domain for redirect
       const redirectUri = getRedirectUri()
-      const res = await fetch(`${API_URL}/cognito-login-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
-      const data = await res.json()
+      const res = await api.get(`${API_URL}/cognito-login-url`, {
+        params: { redirect_uri: redirectUri }
+      })
       
-      if (data.login_url) {
-        window.location.href = data.login_url
+      if (res.data.login_url) {
+        window.location.href = res.data.login_url
       } else {
         throw new Error('No login URL in response')
       }
@@ -112,10 +101,7 @@ export function useAuth() {
    */
   const logout = async () => {
     try {
-      await fetch(`${API_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      })
+      await api.post(`${API_URL}/logout`)
       
       isLoggedIn.value = false
       username.value = 'User'
@@ -149,6 +135,14 @@ export function useAuth() {
     // Check authentication status
     await checkAuth()
   }
+
+  // Register auth state updater for 401 interceptor
+  setAuthStateUpdater((loggedIn: boolean) => {
+    isLoggedIn.value = loggedIn
+    if (!loggedIn) {
+      username.value = 'User'
+    }
+  })
 
   onMounted(handleCallback)
 
