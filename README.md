@@ -1,5 +1,6 @@
 # Patent4AI - Vue SPA
 
+
 AI-powered patent intelligence platform built with Vue 3, TypeScript, and Naive UI.
 
 ## Tech Stack
