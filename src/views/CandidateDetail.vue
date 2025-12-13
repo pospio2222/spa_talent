@@ -340,14 +340,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
 import AppBackButton from '@/components/AppBackButton.vue'
 
 const route = useRoute()
-const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 
@@ -394,10 +393,6 @@ const stageOptions = [
 function formatStage(stage: string): string {
   if (!stage) return 'N/A'
   return stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-}
-
-function goBack() {
-  router.push(`/project/${projectId.value}/candidates`)
 }
 
 async function loadCandidateDetails() {
