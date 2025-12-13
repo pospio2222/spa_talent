@@ -247,6 +247,10 @@ onMounted(() => {
 .back-btn-header {
   background: white;
   color: #4A90E2;
+  font-size: 1.35rem;
+  padding: 15px 24px;
+  height: auto;
+  font-weight: 600;
 }
 
 .main-content {
