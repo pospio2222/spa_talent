@@ -18,12 +18,7 @@
           <!-- Candidate Header -->
           <div class="candidate-header">
             <div class="candidate-header-top">
-              <n-button @click="goBack" class="back-btn-header">
-                <template #icon>
-                  <i class="fas fa-arrow-left"></i>
-                </template>
-                Back
-              </n-button>
+              <AppBackButton :to="`/project/${candidate.project_id}/candidates`">Back</AppBackButton>
               <div class="candidate-breadcrumb">
                 <router-link to="/projects"><i class="fas fa-users"></i> Manage Candidates</router-link>
                 <span> / </span>
@@ -349,6 +344,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
+import AppBackButton from '@/components/AppBackButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -657,10 +653,6 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-}
-
-.back-btn-header {
-  flex-shrink: 0;
 }
 
 .candidate-breadcrumb {

@@ -3,12 +3,7 @@
     <div class="header">
       <div class="header-content">
         <h1>{{ pageTitle }}</h1>
-        <n-button @click="goBack" class="back-btn-header">
-          <template #icon>
-            <n-icon><ArrowBackOutline /></n-icon>
-          </template>
-          Back
-        </n-button>
+        <AppBackButton />
       </div>
     </div>
 
@@ -107,11 +102,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NSpin, NButton, NIcon, useMessage } from 'naive-ui'
 import { 
-  ArrowBackOutline, InformationCircleOutline, DocumentTextOutline, 
+  InformationCircleOutline, DocumentTextOutline, 
   GridOutline, ReaderOutline, CopyOutline, WarningOutline 
 } from '@vicons/ionicons5'
 import { marked } from 'marked'
 import api from '@/utils/api'
+import AppBackButton from '@/components/AppBackButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -242,15 +238,6 @@ onMounted(() => {
   margin: 0;
   font-size: 2rem;
   font-weight: 700;
-}
-
-.back-btn-header {
-  background: white;
-  color: #4A90E2;
-  font-size: 1.35rem;
-  padding: 15px 24px;
-  height: auto;
-  font-weight: 600;
 }
 
 .main-content {

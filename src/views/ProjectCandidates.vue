@@ -15,9 +15,7 @@
           </div>
         </div>
         <div class="project-actions">
-          <n-button secondary @click="$router.push('/candidates')">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-          </n-button>
+          <AppBackButton to="/candidates">Back to Dashboard</AppBackButton>
         </div>
       </div>
 
@@ -209,6 +207,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NSpin, NTag, NSelect, useMessage } from 'naive-ui'
 import api from '@/utils/api'
+import AppBackButton from '@/components/AppBackButton.vue'
 
 const route = useRoute()
 const router = useRouter()
