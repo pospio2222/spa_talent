@@ -4,10 +4,6 @@
     
     <div class="content-wrapper">
       <n-card>
-        <n-button @click="$router.back()" class="back-btn">
-          <i class="fas fa-arrow-left"></i> Back
-        </n-button>
-        
         <div v-if="loading" class="loading-state">
           <n-spin size="large" />
           <p>Loading candidate details...</p>
@@ -21,23 +17,26 @@
         <div v-else-if="candidate" class="detail-content">
           <!-- Candidate Header -->
           <div class="candidate-header">
-            <div class="candidate-info">
+            <div class="candidate-header-top">
+              <n-button @click="goBack" class="back-btn-header">
+                <template #icon>
+                  <i class="fas fa-arrow-left"></i>
+                </template>
+                Back
+              </n-button>
               <div class="candidate-breadcrumb">
                 <router-link to="/projects"><i class="fas fa-users"></i> Manage Candidates</router-link>
                 <span> / </span>
                 <router-link :to="`/project/${candidate.project_id}/candidates`">{{ candidate.project_name }}</router-link>
                 <span> / {{ candidate.name || 'Candidate Details' }}</span>
               </div>
+            </div>
+            <div class="candidate-info">
               <h1>{{ candidate.name || 'Unknown Candidate' }}</h1>
               <div class="candidate-meta">
                 <span class="position">{{ candidate.position_title }}</span>
                 <span class="company">{{ candidate.company }}</span>
               </div>
-            </div>
-            <div class="candidate-actions">
-              <n-button @click="$router.back()">
-                <i class="fas fa-arrow-left"></i> Back to Candidates
-              </n-button>
             </div>
           </div>
 
@@ -346,12 +345,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
 
 const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 
@@ -398,6 +398,10 @@ const stageOptions = [
 function formatStage(stage: string): string {
   if (!stage) return 'N/A'
   return stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+function goBack() {
+  router.push(`/project/${projectId.value}/candidates`)
 }
 
 async function loadCandidateDetails() {
@@ -643,18 +647,26 @@ onMounted(() => {
 }
 
 .candidate-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #e2e8f0;
 }
 
+.candidate-header-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.back-btn-header {
+  flex-shrink: 0;
+}
+
 .candidate-breadcrumb {
   color: #64748b;
   font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+  flex: 1;
 }
 
 .candidate-breadcrumb a {
