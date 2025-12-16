@@ -1,17 +1,24 @@
 /**
- * Patent4AI - Authentication Composable
+ * Talent4AI - Authentication Composable
  * Uses HTTP-only cookies shared across *.4aitek.com subdomains
+ * Callback always goes through 4aitek.com for first-party cookie context
  */
 
 import { ref, onMounted } from 'vue'
 import api, { setAuthStateUpdater } from '@/utils/api'
 
 const API_URL = 'https://login.api.4aitek.com'
+const COGNITO_REDIRECT_URI = 'https://4aitek.com'
+const RETURN_URL_KEY = '4aitek_return_url'
 
-// Use current app's domain for redirect URI
-const getRedirectUri = () => {
-  if (typeof window === 'undefined') return 'https://talent.4aitek.com'
-  return `https://${window.location.hostname}`
+// Cookie helpers for cross-subdomain return URL
+function setReturnUrlCookie(url: string) {
+  const maxAge = 60 * 10 // 10 minutes
+  document.cookie = `${RETURN_URL_KEY}=${encodeURIComponent(url)}; domain=.4aitek.com; path=/; max-age=${maxAge}; secure; samesite=lax`
+}
+
+function clearReturnUrlCookie() {
+  document.cookie = `${RETURN_URL_KEY}=; domain=.4aitek.com; path=/; max-age=0; secure; samesite=lax`
 }
 
 export interface AuthState {
@@ -53,36 +60,17 @@ export function useAuth() {
   }
 
   /**
-   * Exchange authorization code for tokens
-   */
-  const exchangeToken = async (code: string) => {
-    try {
-      const res = await api.post(`${API_URL}/auth/callback`, {
-        code,
-        redirect_uri: getRedirectUri()
-      })
-      
-      if (res.data.success) {
-        await checkAuth()
-        return { success: true }
-      } else {
-        throw new Error(res.data.message || 'Token exchange failed')
-      }
-    } catch (err: any) {
-      console.error('Login failed:', err)
-      return { success: false, error: err?.response?.data?.detail || err?.message || 'Token exchange failed' }
-    }
-  }
-
-  /**
    * Initiate Cognito login
+   * Stores current URL in cookie, redirects through main domain
    */
   const login = async () => {
     try {
-      // Use current app's domain for redirect
-      const redirectUri = getRedirectUri()
+      // Store current URL to return after login
+      setReturnUrlCookie(window.location.href)
+      
+      // Always redirect through main domain for first-party cookie context
       const res = await api.get(`${API_URL}/cognito-login-url`, {
-        params: { redirect_uri: redirectUri }
+        params: { redirect_uri: COGNITO_REDIRECT_URI }
       })
       
       if (res.data.login_url) {
@@ -105,35 +93,11 @@ export function useAuth() {
       
       isLoggedIn.value = false
       username.value = 'User'
+      clearReturnUrlCookie()
       window.location.href = '/'
     } catch (err) {
       console.error('Logout failed:', err)
     }
-  }
-
-  /**
-   * Handle OAuth callback
-   */
-  const handleCallback = async () => {
-    // Handle OAuth callback if code present
-    const code = new URLSearchParams(window.location.search).get('code')
-    if (code) {
-      loading.value = true
-      await exchangeToken(code)
-      // Redirect to current app's domain after successful login
-      const currentHost = window.location.hostname
-      if (currentHost === '4aitek.com') {
-        // If on main domain, redirect to talent subdomain
-        window.location.href = 'https://talent.4aitek.com' + (window.location.pathname || '/')
-        return
-      }
-      // Clean URL after processing (remove code parameter)
-      window.history.replaceState({}, '', window.location.pathname)
-      return
-    }
-
-    // Check authentication status
-    await checkAuth()
   }
 
   // Register auth state updater for 401 interceptor
@@ -144,7 +108,8 @@ export function useAuth() {
     }
   })
 
-  onMounted(handleCallback)
+  // Check auth on mount (callback handling happens on main domain only)
+  onMounted(checkAuth)
 
   return {
     isLoggedIn,
