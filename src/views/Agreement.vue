@@ -3,14 +3,12 @@
     <div class="agreement-card">
       <div class="agreement-header">
         <h1>User Agreement & Consent</h1>
-        <p>Please review and accept the terms below to continue using 4AI Technology services</p>
+        <p>Please review and accept the terms below to continue using 4AI, Inc. services</p>
       </div>
 
       <div class="terms-box">
         <div class="terms-header">Terms and Conditions</div>
-        <div class="terms-content" ref="termsContent">
-          <div v-html="termsContent"></div>
-        </div>
+        <div class="terms-content" v-html="termsContent"></div>
       </div>
 
       <div class="consent-section">
@@ -264,21 +262,21 @@ onMounted(() => {
 }
 
 .consent-section {
-  margin: 32px 0;
+  margin: 24px 0;
 }
 
 .required-note {
   font-size: 14px;
   color: #64748b;
-  margin-bottom: 20px;
-  padding: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
   background: #f1f5f9;
   border-radius: 8px;
 }
 
 .consent-item {
-  padding: 16px;
-  margin: 12px 0;
+  padding: 12px 16px;
+  margin: 6px 0;
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #667eea;
