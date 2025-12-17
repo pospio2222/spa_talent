@@ -1,5 +1,6 @@
 /**
  * Axios instance with 401 interceptor for automatic logout
+ * Note: /verify 401s are ignored - they indicate "not logged in" not "session expired"
  */
 import axios from 'axios'
 
@@ -10,18 +11,21 @@ const api = axios.create({
   withCredentials: true
 })
 
-// Response interceptor - handle 401 errors
+// Response interceptor - handle 401 errors on protected APIs only
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     const status = err?.response?.status
+    const url = err?.config?.url || ''
 
     if (status === 401) {
-      // Update auth state to trigger login page
-      if (authStateUpdater) {
+      // Skip logout for /verify endpoint - 401 just means "not logged in yet"
+      // Only trigger logout for protected API 401s (session expired mid-use)
+      const isVerifyEndpoint = url.includes('/verify')
+      
+      if (!isVerifyEndpoint && authStateUpdater) {
         authStateUpdater(false)
       }
-      // Stop promise chain
       return Promise.reject(err)
     }
 
