@@ -18,22 +18,19 @@
         
         <div class="consent-item required">
           <n-checkbox v-model:checked="consentTerms">
-            <strong>Terms of Service</strong><br>
-            I have read and agree to the Terms of Service and Acceptable Use Policy
+            <strong>Terms of Service:</strong> I have read and agree to the Terms of Service and Acceptable Use Policy
           </n-checkbox>
         </div>
         
         <div class="consent-item required">
           <n-checkbox v-model:checked="consentPrivacy">
-            <strong>Privacy Policy</strong><br>
-            I agree to the Privacy Policy and understand how my data is collected and used
+            <strong>Privacy Policy:</strong> I agree to the Privacy Policy and understand how my data is collected and used
           </n-checkbox>
         </div>
         
         <div class="consent-item required">
           <n-checkbox v-model:checked="consentDataProcessing">
-            <strong>Data Processing</strong><br>
-            I consent to the processing of my personal data as described in the policies
+            <strong>Data Processing:</strong> I consent to the processing of my personal data as described in the policies
           </n-checkbox>
         </div>
       </div>
@@ -275,8 +272,8 @@ onMounted(() => {
 }
 
 .consent-item {
-  padding: 12px 16px;
-  margin: 6px 0;
+  padding: 10px 14px;
+  margin: 4px 0;
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #667eea;
@@ -293,8 +290,6 @@ onMounted(() => {
 
 .consent-item strong {
   color: #1a1a1a;
-  display: block;
-  margin-bottom: 4px;
 }
 
 .actions {
