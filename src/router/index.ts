@@ -100,7 +100,8 @@ const router = createRouter({
 })
 
 // Router guard to check user agreement
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
+  void from // Mark as intentionally unused
   // Allow access to agreement page
   if (to.path === '/agreement') {
     next()
