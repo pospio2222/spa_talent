@@ -44,21 +44,22 @@ export function useAuth() {
       if (res.data.valid) {
         isLoggedIn.value = true
         username.value = res.data.username || 'User'
-        userAgreement.value = res.data.user_agreement ?? true
+        // user_agreement is tinyint(1): 0 or 1, treat undefined/null as false
+        userAgreement.value = res.data.user_agreement === true || res.data.user_agreement === 1
         loading.value = false
         return true
       }
       
       isLoggedIn.value = false
       username.value = 'User'
-      userAgreement.value = true
+      userAgreement.value = false
       loading.value = false
       return false
     } catch (err) {
       console.error('Auth check failed:', err)
       isLoggedIn.value = false
       username.value = 'User'
-      userAgreement.value = true
+      userAgreement.value = false
       loading.value = false
       return false
     }

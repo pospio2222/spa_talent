@@ -145,14 +145,13 @@ const handleAccept = async () => {
   try {
     await api.post('https://accounts.api.4aitek.com/agreement/accept')
     message.success('Agreement accepted successfully')
-    // Refresh auth state to update userAgreement
-    await checkAuth()
-    // Redirect to console
-    router.push('/console')
+    // Use window.location for hard redirect to ensure fresh auth state
+    setTimeout(() => {
+      window.location.href = '/console'
+    }, 500)
   } catch (err: any) {
     console.error('Failed to accept agreement:', err)
     message.error(err.response?.data?.detail || 'Failed to accept agreement. Please try again.')
-  } finally {
     submitting.value = false
   }
 }
