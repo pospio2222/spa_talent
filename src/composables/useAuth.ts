@@ -25,12 +25,14 @@ export interface AuthState {
   isLoggedIn: boolean
   username: string
   loading: boolean
+  userAgreement: boolean
 }
 
 export function useAuth() {
   const isLoggedIn = ref(false)
   const username = ref('User')
   const loading = ref(true)
+  const userAgreement = ref(true) // Default to true to avoid blocking
 
   /**
    * Check authentication status via cookie
@@ -42,18 +44,21 @@ export function useAuth() {
       if (res.data.valid) {
         isLoggedIn.value = true
         username.value = res.data.username || 'User'
+        userAgreement.value = res.data.user_agreement ?? true
         loading.value = false
         return true
       }
       
       isLoggedIn.value = false
       username.value = 'User'
+      userAgreement.value = true
       loading.value = false
       return false
     } catch (err) {
       console.error('Auth check failed:', err)
       isLoggedIn.value = false
       username.value = 'User'
+      userAgreement.value = true
       loading.value = false
       return false
     }
@@ -115,6 +120,7 @@ export function useAuth() {
     isLoggedIn,
     username,
     loading,
+    userAgreement,
     checkAuth,
     login,
     logout

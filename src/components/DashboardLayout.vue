@@ -137,7 +137,7 @@ import api from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
-const { isLoggedIn, loading, login, logout } = useAuth()
+const { isLoggedIn, loading, login, logout, userAgreement, checkAuth } = useAuth()
 
 const collapsed = ref(false)
 const activeKey = ref('console')
@@ -172,9 +172,21 @@ watch(isLoggedIn, (newVal) => {
   }
 })
 
-onMounted(() => {
+// Check agreement status and redirect if needed
+watch([isLoggedIn, userAgreement], ([loggedIn, agreed]) => {
+  if (loggedIn && !agreed && !route.path.startsWith('/agreement')) {
+    router.push('/agreement')
+  }
+}, { immediate: true })
+
+onMounted(async () => {
   if (isLoggedIn.value) {
     fetchCredits()
+    // Re-check auth to get latest agreement status
+    await checkAuth()
+    if (!userAgreement.value && route.path !== '/agreement') {
+      router.push('/agreement')
+    }
   }
 })
 

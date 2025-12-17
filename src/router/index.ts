@@ -86,12 +86,46 @@ const routes: RouteRecordRaw[] = [
     path: '/chatflow',
     name: 'chatflow',
     component: () => import('@/views/Chatflow.vue')
+  },
+  {
+    path: '/agreement',
+    name: 'agreement',
+    component: () => import('@/views/Agreement.vue')
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// Router guard to check user agreement
+router.beforeEach(async (to, from, next) => {
+  // Allow access to agreement page
+  if (to.path === '/agreement') {
+    next()
+    return
+  }
+
+  // Check auth and agreement status
+  try {
+    const res = await fetch('https://login.api.4aitek.com/verify', {
+      credentials: 'include'
+    })
+    
+    if (res.ok) {
+      const data = await res.json()
+      if (data.valid && !data.user_agreement) {
+        // User is logged in but hasn't accepted agreement
+        next('/agreement')
+        return
+      }
+    }
+  } catch (err) {
+    console.error('Failed to check agreement:', err)
+  }
+
+  next()
 })
 
 export default router
