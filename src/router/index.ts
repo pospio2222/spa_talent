@@ -116,9 +116,9 @@ router.beforeEach(async (to, from, next) => {
     
     if (res.ok) {
       const data = await res.json()
-      // user_agreement is tinyint(1): 0 or 1, treat undefined/null as false
-      const hasAgreed = data.user_agreement === true || data.user_agreement === 1
-      if (data.valid && !hasAgreed) {
+      // user_agreement is boolean (True/False from backend)
+      // Only redirect if user is valid AND has NOT agreed (false, 0, null, or undefined)
+      if (data.valid === true && data.user_agreement !== true) {
         // User is logged in but hasn't accepted agreement
         next('/agreement')
         return

@@ -44,8 +44,8 @@ export function useAuth() {
       if (res.data.valid) {
         isLoggedIn.value = true
         username.value = res.data.username || 'User'
-        // user_agreement is tinyint(1): 0 or 1, treat undefined/null as false
-        userAgreement.value = res.data.user_agreement === true || res.data.user_agreement === 1
+        // user_agreement is boolean from backend (True/False)
+        userAgreement.value = res.data.user_agreement === true
         loading.value = false
         return true
       }
