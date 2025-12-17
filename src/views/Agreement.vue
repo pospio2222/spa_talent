@@ -46,14 +46,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { NButton, NCheckbox, useMessage } from 'naive-ui'
 import api from '@/utils/api'
-import { useAuth } from '@/composables/useAuth'
 
-const router = useRouter()
 const message = useMessage()
-const { checkAuth } = useAuth()
 const submitting = ref(false)
 const consentTerms = ref(false)
 const consentPrivacy = ref(false)
