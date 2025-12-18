@@ -32,7 +32,7 @@ export function useAuth() {
   const isLoggedIn = ref(false)
   const username = ref('User')
   const loading = ref(true)
-  const userAgreement = ref(true) // Default to true to avoid blocking
+  const userAgreement = ref(false) // Default to false - must check API
 
   /**
    * Check authentication status via cookie
