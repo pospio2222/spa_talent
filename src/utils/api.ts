@@ -1,17 +1,31 @@
 /**
- * Axios instance with 401 interceptor for automatic logout
- * Note: /verify 401s are ignored - they indicate "not logged in" not "session expired"
+ * Axios instance with Authorization header and 401 interceptor
+ * 
+ * JWT-based authentication - no cookies.
  */
 import axios from 'axios'
+import { authHeaders, clearTokens } from '@/auth/authClient'
 
 let authStateUpdater: ((loggedIn: boolean) => void) | null = null
 
-// Create axios instance with credentials
-const api = axios.create({
-  withCredentials: true
-})
+// Create axios instance (no credentials needed - using headers)
+const api = axios.create()
 
-// Response interceptor - handle 401 errors on protected APIs only
+// Request interceptor - add Authorization header
+api.interceptors.request.use(
+  (config) => {
+    const headers = authHeaders()
+    if (headers.Authorization) {
+      config.headers.Authorization = headers.Authorization
+    }
+    return config
+  },
+  (err) => Promise.reject(err)
+)
+
+// Response interceptor - handle 401 errors
+// IMPORTANT: Do NOT auto-redirect to login on 401!
+// This causes infinite loops. Let the user manually click login.
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -19,13 +33,17 @@ api.interceptors.response.use(
     const url = err?.config?.url || ''
 
     if (status === 401) {
-      // Skip logout for /verify endpoint - 401 just means "not logged in yet"
-      // Only trigger logout for protected API 401s (session expired mid-use)
+      // Skip token clearing for /verify endpoint - 401 just means "not logged in yet"
       const isVerifyEndpoint = url.includes('/verify')
       
-      if (!isVerifyEndpoint && authStateUpdater) {
-        authStateUpdater(false)
+      if (!isVerifyEndpoint) {
+        clearTokens()
+        
+        if (authStateUpdater) {
+          authStateUpdater(false)
+        }
       }
+      
       return Promise.reject(err)
     }
 

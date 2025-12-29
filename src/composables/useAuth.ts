@@ -1,129 +1,123 @@
 /**
  * Talent4AI - Authentication Composable
- * Uses HTTP-only cookies shared across *.4aitek.com subdomains
- * Callback always goes through 4aitek.com for first-party cookie context
+ * 
+ * JWT-based authentication using Authorization headers.
+ * Delegates login to the centralized Auth SPA (auth.4aitek.com).
+ * Agreement check is handled by Auth SPA before redirect.
  */
 
 import { ref, onMounted } from 'vue'
-import api, { setAuthStateUpdater } from '@/utils/api'
-
-const API_URL = 'https://login.api.4aitek.com'
-const COGNITO_REDIRECT_URI = 'https://4aitek.com'
-const RETURN_URL_KEY = '4aitek_return_url'
-
-// Cookie helpers for cross-subdomain return URL
-function setReturnUrlCookie(url: string) {
-  const maxAge = 60 * 10 // 10 minutes
-  document.cookie = `${RETURN_URL_KEY}=${encodeURIComponent(url)}; domain=.4aitek.com; path=/; max-age=${maxAge}; secure; samesite=lax`
-}
-
-function clearReturnUrlCookie() {
-  document.cookie = `${RETURN_URL_KEY}=; domain=.4aitek.com; path=/; max-age=0; secure; samesite=lax`
-}
-
-export interface AuthState {
-  isLoggedIn: boolean
-  username: string
-  loading: boolean
-  userAgreement: boolean
-}
+import {
+  isLoggedIn as checkIsLoggedIn,
+  verifyToken,
+  login as authLogin,
+  logout as authLogout,
+  exchangeHandoff,
+  authHeaders,
+  type UserInfo
+} from '@/auth/authClient'
 
 export function useAuth() {
-  const isLoggedIn = ref(false)
+  const isLoggedIn = ref(checkIsLoggedIn())
   const username = ref('User')
   const loading = ref(true)
-  const userAgreement = ref(false) // Default to false - must check API
-
+  const user = ref<UserInfo | null>(null)
+  
   /**
-   * Check authentication status via cookie
+   * Check URL for handoff code and exchange it for tokens
+   */
+  async function checkForHandoffCode(): Promise<boolean> {
+    const urlParams = new URLSearchParams(window.location.search)
+    const handoff = urlParams.get('handoff')
+    
+    if (!handoff) {
+      return false
+    }
+    
+    const success = await exchangeHandoff(handoff)
+    
+    if (success) {
+      // Remove handoff from URL
+      urlParams.delete('handoff')
+      const newUrl = window.location.pathname + 
+        (urlParams.toString() ? `?${urlParams.toString()}` : '') + 
+        window.location.hash
+      window.history.replaceState({}, '', newUrl)
+      
+      // Update state
+      isLoggedIn.value = true
+      await checkAuth()
+      return true
+    }
+    
+    return false
+  }
+  
+  /**
+   * Check authentication status via Authorization header
    */
   const checkAuth = async (): Promise<boolean> => {
-    try {
-      const res = await api.get(`${API_URL}/verify`)
-      
-      if (res.data.valid) {
-        isLoggedIn.value = true
-        username.value = res.data.username || 'User'
-        userAgreement.value = res.data.user_agreement === 1
-        loading.value = false
-        return true
-      }
-      
+    loading.value = true
+    
+    const result = await verifyToken()
+    
+    if (result.valid && result.user) {
+      isLoggedIn.value = true
+      user.value = result.user
+      username.value = result.user.username || result.user.email?.split('@')[0] || 'User'
+    } else {
       isLoggedIn.value = false
+      user.value = null
       username.value = 'User'
-      userAgreement.value = false
-      loading.value = false
-      return false
-    } catch (err) {
-      console.error('Auth check failed:', err)
-      isLoggedIn.value = false
-      username.value = 'User'
-      userAgreement.value = false
-      loading.value = false
-      return false
     }
+    
+    loading.value = false
+    return result.valid
   }
 
   /**
-   * Initiate Cognito login
-   * Stores current URL in cookie, redirects through main domain
+   * Initiate login - redirect to Auth SPA
    */
   const login = async () => {
-    try {
-      // Store current URL to return after login
-      setReturnUrlCookie(window.location.href)
-      
-      // Always redirect through main domain for first-party cookie context
-      const res = await api.get(`${API_URL}/cognito-login-url`, {
-        params: { redirect_uri: COGNITO_REDIRECT_URI }
-      })
-      
-      if (res.data.login_url) {
-        window.location.href = res.data.login_url
-      } else {
-        throw new Error('No login URL in response')
-      }
-    } catch (err) {
-      console.error('Failed to get login URL:', err)
-      window.location.href = API_URL
-    }
+    authLogin(window.location.href)
   }
 
   /**
-   * Logout and clear cookies
+   * Logout - clear tokens and redirect to Auth SPA logout
    */
   const logout = async () => {
-    try {
-      await api.post(`${API_URL}/logout`)
-      
-      isLoggedIn.value = false
-      username.value = 'User'
-      clearReturnUrlCookie()
-      window.location.href = '/'
-    } catch (err) {
-      console.error('Logout failed:', err)
-    }
+    isLoggedIn.value = false
+    username.value = 'User'
+    user.value = null
+    authLogout()
   }
 
-  // Register auth state updater for 401 interceptor
-  setAuthStateUpdater((loggedIn: boolean) => {
-    isLoggedIn.value = loggedIn
-    if (!loggedIn) {
-      username.value = 'User'
+  // Single auth check on mount
+  onMounted(async () => {
+    // Check for handoff code first (user just logged in)
+    const hasHandoff = await checkForHandoffCode()
+    if (hasHandoff) {
+      return
+    }
+    
+    // Check existing token
+    if (checkIsLoggedIn()) {
+      await checkAuth()
+    } else {
+      loading.value = false
     }
   })
-
-  // Check auth on mount (callback handling happens on main domain only)
-  onMounted(checkAuth)
 
   return {
     isLoggedIn,
     username,
     loading,
-    userAgreement,
+    user,
     checkAuth,
     login,
     logout
   }
 }
 
+// Re-export auth headers for API calls
+export { authHeaders }
