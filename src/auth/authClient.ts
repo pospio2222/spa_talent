@@ -2,13 +2,12 @@
  * Auth Client - Token Storage and Management
  * 
  * This module handles:
- * - Storing tokens in sessionStorage
+ * - Storing tokens in localStorage (shared across tabs)
  * - Retrieving tokens for API calls
  * - Login/logout redirects to Auth SPA
  * 
  * SECURITY NOTES:
- * - Tokens are stored in sessionStorage (cleared on tab close)
- * - Never use localStorage for tokens (XSS risk)
+ * - Tokens are stored in localStorage (shared across tabs)
  * - Always use Authorization headers, never cookies
  */
 
@@ -44,31 +43,31 @@ export interface UserInfo {
 }
 
 /**
- * Save tokens to sessionStorage
+ * Save tokens to localStorage
  */
 export function saveTokens(tokens: AuthTokens): void {
   const expiresAt = Date.now() + (tokens.expires_in * 1000)
   
-  sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access_token)
-  sessionStorage.setItem(STORAGE_KEYS.ID_TOKEN, tokens.id_token)
-  sessionStorage.setItem(STORAGE_KEYS.EXPIRES_AT, expiresAt.toString())
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access_token)
+  localStorage.setItem(STORAGE_KEYS.ID_TOKEN, tokens.id_token)
+  localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, expiresAt.toString())
 }
 
 /**
- * Clear all tokens from sessionStorage
+ * Clear all tokens from localStorage
  */
 export function clearTokens(): void {
-  sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-  sessionStorage.removeItem(STORAGE_KEYS.ID_TOKEN)
-  sessionStorage.removeItem(STORAGE_KEYS.EXPIRES_AT)
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+  localStorage.removeItem(STORAGE_KEYS.ID_TOKEN)
+  localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT)
 }
 
 /**
  * Get access token (for Authorization header)
  */
 export function getAccessToken(): string | null {
-  const token = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-  const expiresAt = sessionStorage.getItem(STORAGE_KEYS.EXPIRES_AT)
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+  const expiresAt = localStorage.getItem(STORAGE_KEYS.EXPIRES_AT)
   
   // Check if token exists and is not expired
   if (token && expiresAt) {
@@ -86,7 +85,7 @@ export function getAccessToken(): string | null {
  * Get ID token (contains user claims)
  */
 export function getIdToken(): string | null {
-  return sessionStorage.getItem(STORAGE_KEYS.ID_TOKEN)
+  return localStorage.getItem(STORAGE_KEYS.ID_TOKEN)
 }
 
 /**

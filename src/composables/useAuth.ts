@@ -6,7 +6,7 @@
  * Agreement check is handled by Auth SPA before redirect.
  */
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   isLoggedIn as checkIsLoggedIn,
   verifyToken,
@@ -92,8 +92,25 @@ export function useAuth() {
     authLogout()
   }
 
+  // Storage event listener to sync auth state across tabs
+  const handleStorageChange = async (e: StorageEvent) => {
+    if (e.key === '4ai_access_token' || e.key === '4ai_id_token' || e.key === '4ai_expires_at') {
+      // Token changed in another tab, update auth state
+      if (checkIsLoggedIn()) {
+        await checkAuth()
+      } else {
+        isLoggedIn.value = false
+        user.value = null
+        username.value = 'User'
+      }
+    }
+  }
+
   // Single auth check on mount
   onMounted(async () => {
+    // Listen for storage changes (tokens updated in other tabs)
+    window.addEventListener('storage', handleStorageChange)
+    
     // Check for handoff code first (user just logged in)
     const hasHandoff = await checkForHandoffCode()
     if (hasHandoff) {
@@ -106,6 +123,10 @@ export function useAuth() {
     } else {
       loading.value = false
     }
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('storage', handleStorageChange)
   })
 
   return {
