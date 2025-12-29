@@ -239,12 +239,16 @@ const handleLogout = async () => {
 }
 
 const openPopup = (url: string) => {
+  const AUTH_SPA_URL = import.meta.env.PROD
+    ? 'https://auth.4aitek.com'
+    : 'http://localhost:5175'
+  const loginUrl = `${AUTH_SPA_URL}/login?return=${encodeURIComponent(url)}`
   const width = 1200
   const height = 800
   const left = (window.screen.width - width) / 2
   const top = (window.screen.height - height) / 2
   window.open(
-    url,
+    loginUrl,
     '_blank',
     `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
   )
