@@ -95,6 +95,7 @@ import { useRoute } from 'vue-router'
 import { NSpin, useMessage } from 'naive-ui'
 import { marked } from 'marked'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const route = useRoute()
 const message = useMessage()
@@ -140,7 +141,7 @@ async function loadAnalysisDetails() {
   const patentId = route.params.patentId as string
 
   try {
-    const response = await api.get(`https://patent.api.4aitek.com/api/patent-analysis-details/${analysisId}/${patentId}`)
+    const response = await api.get(`${config.patentApiUrl}/api/patent-analysis-details/${analysisId}/${patentId}`)
     const data = response.data
 
     if (data.success) {

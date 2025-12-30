@@ -48,6 +48,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { NButton, NCheckbox, useMessage } from 'naive-ui'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const message = useMessage()
 const submitting = ref(false)
@@ -139,7 +140,7 @@ const handleAccept = async () => {
 
   submitting.value = true
   try {
-    await api.post('https://accounts.api.4aitek.com/agreement/accept')
+    await api.post(`${config.accountsApiUrl}/agreement/accept`)
     message.success('Agreement accepted successfully')
     // Use window.location for hard redirect to ensure fresh auth state
     setTimeout(() => {

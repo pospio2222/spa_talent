@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { NSpin, useMessage } from 'naive-ui'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const message = useMessage()
@@ -80,14 +81,14 @@ onMounted(async () => {
 async function loadProjects() {
   loading.value = true
   try {
-    const response = await api.get('https://talent.api.4aitek.com/projects')
+    const response = await api.get(`${config.talentApiUrl}/projects`)
     const data = response.data
     
     if (data.success) {
       // Get analysis counts for each project
       projects.value = await Promise.all(data.projects.map(async (project: Project) => {
         try {
-          const resumesRes = await api.get(`https://talent.api.4aitek.com/projects/${project.project_id}/resumes`)
+          const resumesRes = await api.get(`${config.talentApiUrl}/projects/${project.project_id}/resumes`)
           const resumesData = resumesRes.data
           
           const resumeCount = resumesData.resumes?.length || 0

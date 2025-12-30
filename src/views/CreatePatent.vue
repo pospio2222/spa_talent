@@ -136,6 +136,7 @@ import { useRouter } from 'vue-router'
 import { NCard, NForm, NButton, NSpin, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const router = useRouter()
 const message = useMessage()
@@ -204,7 +205,7 @@ async function handleSubmit() {
     formData.append('patent_title', patentTitle.value.trim())
     formData.append('patent_disclosure', selectedFile.value!)
 
-    const response = await api.post('https://patent.api.4aitek.com/start-patent-creation', formData, {
+    const response = await api.post(`${config.patentApiUrl}/start-patent-creation`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -228,7 +229,7 @@ async function handleSubmit() {
 async function loadProjects() {
   isLoadingProjects.value = true
   try {
-    const response = await api.get('https://patent.api.4aitek.com/patent-projects')
+    const response = await api.get(`${config.patentApiUrl}/patent-projects`)
     const data = response.data
     if (data.success) {
       projects.value = data.projects || []
@@ -254,7 +255,7 @@ function deleteProject(projectId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await api.delete(`https://patent.api.4aitek.com/api/delete-patent-project/${projectId}`)
+        const response = await api.delete(`${config.patentApiUrl}/api/delete-patent-project/${projectId}`)
         const data = response.data
 
         if (data.success) {

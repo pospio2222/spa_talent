@@ -119,6 +119,7 @@ import { useRouter } from 'vue-router'
 import { NCard, NForm, NFormItem, NInput, NSelect, NUpload, NButton, useMessage } from 'naive-ui'
 import type { FormInst, FormRules, UploadFileInfo } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const router = useRouter()
@@ -211,7 +212,7 @@ async function handleSubmit() {
       formPayload.append('cultural_fit_file', formData.value.cultural_fit_file)
     }
 
-    const response = await api.post('https://talent.api.4aitek.com/projects/create', formPayload, {
+    const response = await api.post(`${config.talentApiUrl}/projects/create`, formPayload, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

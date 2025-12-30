@@ -34,6 +34,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NAlert } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const route = useRoute()
@@ -88,7 +89,7 @@ function checkAllTasksStatus() {
       // Check each pending task
       const checkPromises = pendingTasks.map(async (taskId) => {
         try {
-          const response = await api.get(`https://talent.api.4aitek.com/task-status/${taskId}`)
+          const response = await api.get(`${config.talentApiUrl}/task-status/${taskId}`)
           const data = response.data
           
           if (data.state === 'SUCCESS' || data.state === 'FAILURE') {

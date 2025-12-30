@@ -206,6 +206,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NSpin, NTag, NSelect, useMessage } from 'naive-ui'
+import { config } from '@/config'
 import api from '@/utils/api'
 import AppBackButton from '@/components/AppBackButton.vue'
 
@@ -267,7 +268,7 @@ onMounted(async () => {
 
 async function loadProjectInfo() {
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/candidates/page`)
+    const response = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/candidates/page`)
     const data = response.data
     
     if (data.success) {
@@ -289,7 +290,7 @@ async function loadProjectInfo() {
 async function loadCandidates() {
   loadingCandidates.value = true
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/candidates/list`)
+    const response = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/candidates/list`)
     const data = response.data
     
     if (data.success) {
@@ -317,7 +318,7 @@ async function migrateResumes() {
   migrationState.value = 'processing'
   
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/projects/${projectId.value}/extract-personal-info`, null, {
+    const response = await api.post(`${config.talentApiUrl}/projects/${projectId.value}/extract-personal-info`, null, {
       params: { update_existing: updateExisting.value }
     })
     const data = response.data
@@ -385,7 +386,7 @@ function formatStage(stage: string): string {
 
 async function updateCandidateStage(candidateId: number, newStage: string) {
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidateId}/update-stage`, {
+    const response = await api.post(`${config.talentApiUrl}/candidate/${candidateId}/update-stage`, {
       stage: newStage
     })
     const data = response.data

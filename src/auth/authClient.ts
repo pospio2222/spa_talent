@@ -11,15 +11,10 @@
  * - Always use Authorization headers, never cookies
  */
 
-// Auth SPA URL
-const AUTH_SPA_URL = import.meta.env.PROD
-  ? 'https://auth.4aitek.com'
-  : 'http://localhost:5175'
+import { config } from '@/config'
 
-// Backend API URL
-export const AUTH_API_URL = import.meta.env.PROD
-  ? 'https://login.api.4aitek.com'
-  : 'http://localhost:7000'
+// Re-export URLs for backward compatibility
+export const AUTH_API_URL = config.authApiUrl
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -114,7 +109,7 @@ export function authHeaders(): Record<string, string> {
  */
 export function login(returnUrl?: string): void {
   const url = returnUrl || window.location.href
-  const loginUrl = `${AUTH_SPA_URL}/login?return=${encodeURIComponent(url)}`
+  const loginUrl = `${config.authOrigin}/login?return=${encodeURIComponent(url)}`
   
   // Same-tab redirect (no popup)
   window.location.href = loginUrl
@@ -128,7 +123,7 @@ export function logout(): void {
   
   // Redirect to Auth SPA logout (which will clear Cognito session)
   const logoutUri = encodeURIComponent(window.location.origin)
-  window.location.href = `${AUTH_SPA_URL}/logout?logout_uri=${logoutUri}`
+  window.location.href = `${config.authOrigin}/logout?logout_uri=${logoutUri}`
 }
 
 /**
@@ -138,7 +133,7 @@ export function logout(): void {
  */
 export async function exchangeHandoff(handoff: string): Promise<boolean> {
   try {
-    const response = await fetch(`${AUTH_API_URL}/auth/exchange-handoff`, {
+    const response = await fetch(`${config.authApiUrl}/auth/exchange-handoff`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -178,7 +173,7 @@ export async function verifyToken(): Promise<{ valid: boolean; user?: UserInfo }
   }
   
   try {
-    const response = await fetch(`${AUTH_API_URL}/verify`, {
+    const response = await fetch(`${config.authApiUrl}/verify`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     

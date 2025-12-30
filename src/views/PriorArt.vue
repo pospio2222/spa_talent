@@ -133,6 +133,7 @@ import { useRouter } from 'vue-router'
 import { NCard, NForm, NButton, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const router = useRouter()
 const message = useMessage()
@@ -201,7 +202,7 @@ async function handleSubmit() {
     formData.append('analysis_title', analysisTitle.value.trim())
     formData.append('invention_disclosure', selectedFile.value!)
 
-    const response = await api.post('https://patent.api.4aitek.com/prior-art-search', formData, {
+    const response = await api.post(`${config.patentApiUrl}/prior-art-search`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -225,7 +226,7 @@ async function handleSubmit() {
 async function loadAnalyses() {
   isLoadingAnalyses.value = true
   try {
-    const response = await api.get('https://patent.api.4aitek.com/prior-art-search')
+    const response = await api.get(`${config.patentApiUrl}/prior-art-search`)
     const data = response.data
     if (data.success) {
       analyses.value = data.analyses || []
@@ -254,7 +255,7 @@ function deleteAnalysis(analysisId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await api.delete(`https://patent.api.4aitek.com/api/delete-analysis/${analysisId}`)
+        const response = await api.delete(`${config.patentApiUrl}/api/delete-analysis/${analysisId}`)
         const data = response.data
 
         if (data.success) {

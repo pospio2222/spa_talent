@@ -177,6 +177,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, useMessage } from 'naive-ui'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const route = useRoute()
 const router = useRouter()
@@ -309,7 +310,7 @@ async function loadPatentData() {
     return
   }
   
-  const response = await api.get(`https://patent.api.4aitek.com/api/get-patent-data/${projectId.value}`)
+  const response = await api.get(`${config.patentApiUrl}/api/get-patent-data/${projectId.value}`)
   const data = response.data
   
   if (data.success && data.data) {
@@ -344,7 +345,7 @@ async function saveManualEdit() {
   isSaving.value = true
   
   try {
-    const response = await api.post(`https://patent.api.4aitek.com/api/save-edit/${projectId.value}`, {
+    const response = await api.post(`${config.patentApiUrl}/api/save-edit/${projectId.value}`, {
       updated_claims: updatedClaims
     })
     const data = response.data
@@ -404,7 +405,7 @@ async function handleAIImprovement(
       formData.append('improvement_doc', improvementDoc)
     }
     
-    const response = await api.post('https://patent.api.4aitek.com/api/process-patent-improvement', formData, {
+    const response = await api.post(`${config.patentApiUrl}/api/process-patent-improvement`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -455,7 +456,7 @@ async function handleAskAI(
       formData.append('context_doc', contextDoc)
     }
     
-    const response = await api.post('https://patent.api.4aitek.com/api/ask-ai-about-patent', formData, {
+    const response = await api.post(`${config.patentApiUrl}/api/ask-ai-about-patent`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -498,7 +499,7 @@ function pollAskAIStatus(taskId: string) {
     }
     
     try {
-      const response = await api.get(`https://patent.api.4aitek.com/api/task-status/${taskId}`)
+      const response = await api.get(`${config.patentApiUrl}/api/task-status/${taskId}`)
       const data = response.data
       
       if (data.state === 'SUCCESS' && data.result) {
@@ -537,7 +538,7 @@ function startTaskPolling(taskId: string) {
     }
     
     try {
-      const response = await api.get(`https://patent.api.4aitek.com/api/task-status/${taskId}`)
+      const response = await api.get(`${config.patentApiUrl}/api/task-status/${taskId}`)
       const data = response.data
       
       if (data.state === 'SUCCESS') {

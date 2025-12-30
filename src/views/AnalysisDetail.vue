@@ -106,6 +106,7 @@ import {
   GridOutline, ReaderOutline, CopyOutline, WarningOutline 
 } from '@vicons/ionicons5'
 import { marked } from 'marked'
+import { config } from '@/config'
 import api from '@/utils/api'
 import AppBackButton from '@/components/AppBackButton.vue'
 
@@ -172,7 +173,7 @@ async function loadAnalysisDetails() {
   error.value = null
   
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/analysis/${analysisId.value}`)
+    const response = await api.get(`${config.talentApiUrl}/analysis/${analysisId.value}`)
     const data = response.data
     
     if (data.success) {

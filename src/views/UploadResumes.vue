@@ -140,6 +140,7 @@ import {
   ArrowBackOutline
 } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const route = useRoute()
@@ -155,15 +156,13 @@ const isDragging = ref(false)
 const uploading = ref(false)
 const error = ref<string | null>(null)
 
-const apiUrl = import.meta.env.VITE_API_URL || 'https://talent.api.4aitek.com'
-
 onMounted(async () => {
   await loadProjectInfo()
 })
 
 async function loadProjectInfo() {
   try {
-    const response = await api.get(`${apiUrl}/projects/${projectId.value}/resumes`)
+    const response = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/resumes`)
     const data = response.data
     if (data.success && data.project) {
       project.value = data.project
@@ -237,7 +236,7 @@ async function handleUpload() {
       formData.append('resumes', file)
     })
 
-    const response = await api.post(`${apiUrl}/projects/${projectId.value}/upload-resumes`, formData, {
+    const response = await api.post(`${config.talentApiUrl}/projects/${projectId.value}/upload-resumes`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

@@ -42,6 +42,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const router = useRouter()
 const route = useRoute()
@@ -70,7 +71,7 @@ onUnmounted(() => {
 
 async function checkTaskStatusOnce(taskId: string) {
   try {
-    const response = await api.get(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`)
+    const response = await api.get(`${config.patentApiUrl}/api/patent-task-status/${taskId}`)
     const data = response.data
     if (data.state === 'SUCCESS' && data.project_id) {
       message.success('Patent claims generated successfully!')
@@ -97,7 +98,7 @@ function checkTaskStatus(taskId: string) {
     }
     
     try {
-      const response = await api.get(`https://patent.api.4aitek.com/api/patent-task-status/${taskId}`)
+      const response = await api.get(`${config.patentApiUrl}/api/patent-task-status/${taskId}`)
       const data = response.data
       
       if (data.state === 'SUCCESS' && data.project_id) {

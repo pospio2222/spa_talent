@@ -150,6 +150,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { NButton, NSpin, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import api from '@/utils/api'
+import { config } from '@/config'
 
 const router = useRouter()
 const route = useRoute()
@@ -183,7 +184,7 @@ async function loadAnalysisResults() {
   const analysisId = route.params.analysisId as string
   
   try {
-    const response = await api.get(`https://patent.api.4aitek.com/prior-art-results/${analysisId}`)
+    const response = await api.get(`${config.patentApiUrl}/prior-art-results/${analysisId}`)
     const data = response.data
 
     if (data.success) {
@@ -222,7 +223,7 @@ async function runSimilarityAnalysis(usptoId: number) {
   }
 
   try {
-    const response = await api.post(`https://patent.api.4aitek.com/api/run-similarity-analysis/${analysisId}/${usptoId}`)
+    const response = await api.post(`${config.patentApiUrl}/api/run-similarity-analysis/${analysisId}/${usptoId}`)
     const data = response.data
 
     if (!data.success) {
@@ -240,7 +241,7 @@ async function checkPatentStatus(usptoId: number) {
   const analysisId = route.params.analysisId as string
 
   try {
-    const response = await api.get(`https://patent.api.4aitek.com/api/patent-analysis-status/${analysisId}/${usptoId}`)
+    const response = await api.get(`${config.patentApiUrl}/api/patent-analysis-status/${analysisId}/${usptoId}`)
     const data = response.data
 
     if (data.success) {

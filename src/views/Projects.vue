@@ -115,6 +115,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NSpin, useDialog, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const router = useRouter()
@@ -172,7 +173,7 @@ async function loadProjects() {
   error.value = ''
 
   try {
-    const response = await api.get('https://talent.api.4aitek.com/projects')
+    const response = await api.get(`${config.talentApiUrl}/projects`)
     const data = response.data
     projects.value = data.projects || []
   } catch (err: any) {
@@ -223,7 +224,7 @@ async function deleteProject(projectId: number) {
     const formData = new FormData()
     formData.append('project_id', projectId.toString())
 
-    const response = await api.post('https://talent.api.4aitek.com/projects/delete', formData, {
+    const response = await api.post(`${config.talentApiUrl}/projects/delete`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

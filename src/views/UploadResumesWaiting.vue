@@ -35,6 +35,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NAlert, NButton, useMessage } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const route = useRoute()
@@ -46,8 +47,6 @@ const taskId = ref(route.params.taskId as string)
 const statusMessage = ref('Processing your resume files...')
 const error = ref<string | null>(null)
 const pollInterval = ref<number | null>(null)
-
-const apiUrl = import.meta.env.VITE_API_URL || 'https://talent.api.4aitek.com'
 
 onMounted(() => {
   checkTaskStatus()
@@ -62,7 +61,7 @@ onUnmounted(() => {
 function checkTaskStatus() {
   pollInterval.value = window.setInterval(async () => {
     try {
-      const response = await api.get(`${apiUrl}/task-status/${taskId.value}`)
+      const response = await api.get(`${config.talentApiUrl}/task-status/${taskId.value}`)
       const data = response.data
       updateStatus(data)
     } catch (err: any) {

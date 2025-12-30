@@ -343,6 +343,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { NButton, NSpin, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 import AppBackButton from '@/components/AppBackButton.vue'
 
@@ -399,7 +400,7 @@ async function loadCandidateDetails() {
   loading.value = true
   error.value = null
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/candidate/${resumeId.value}/${projectId.value}`)
+    const response = await api.get(`${config.talentApiUrl}/candidate/${resumeId.value}/${projectId.value}`)
     const data = response.data
 
     if (data.success) {
@@ -461,7 +462,7 @@ function toggleEditMode() {
 
 async function saveContactInfo() {
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-info`, editForm.value)
+    const response = await api.post(`${config.talentApiUrl}/candidate/${candidate.value.candidate_id}/update-info`, editForm.value)
     const data = response.data
 
     if (data.success) {
@@ -483,7 +484,7 @@ async function saveContactInfo() {
 async function updateStage(event: any) {
   const newStage = event.target.value
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/update-stage`, { stage: newStage })
+    const response = await api.post(`${config.talentApiUrl}/candidate/${candidate.value.candidate_id}/update-stage`, { stage: newStage })
     const data = response.data
 
     if (data.success) {
@@ -507,7 +508,7 @@ async function addNoteHandler() {
   }
 
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, { note: newNote.value })
+    const response = await api.post(`${config.talentApiUrl}/candidate/${candidate.value.candidate_id}/notes`, { note: newNote.value })
     const data = response.data
 
     if (data.success) {
@@ -531,7 +532,7 @@ function deleteNoteHandler(noteId: number) {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       try {
-        const response = await api.delete(`https://talent.api.4aitek.com/candidate/${candidate.value.candidate_id}/notes`, {
+        const response = await api.delete(`${config.talentApiUrl}/candidate/${candidate.value.candidate_id}/notes`, {
           data: { note_id: noteId }
         })
         const data = response.data
@@ -583,7 +584,7 @@ async function saveCalendar() {
   }
 
   try {
-    const response = await api.post('https://talent.api.4aitek.com/user/calendar', {
+    const response = await api.post(`${config.talentApiUrl}/user/calendar`, {
       google_calendar_id: newCalendarEmbedCode.value.trim()
     })
     const data = response.data

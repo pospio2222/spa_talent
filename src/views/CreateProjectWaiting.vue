@@ -39,6 +39,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NButton, NAlert, NIcon, useMessage } from 'naive-ui'
 import { RefreshOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const route = useRoute()
@@ -53,7 +54,7 @@ let pollInterval: number | null = null
 
 async function checkTaskStatusOnce(id: string) {
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/task-status/${id}`)
+    const response = await api.get(`${config.talentApiUrl}/task-status/${id}`)
     const data = response.data
     updateStatus(data)
   } catch (err: any) {
@@ -75,7 +76,7 @@ function checkTaskStatus(id: string) {
     }
 
     try {
-      const response = await api.get(`https://talent.api.4aitek.com/task-status/${id}`)
+      const response = await api.get(`${config.talentApiUrl}/task-status/${id}`)
       const data = response.data
       updateStatus(data)
 

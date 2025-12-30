@@ -133,6 +133,7 @@ import { ref, h, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NLayout, NLayoutSider, NLayoutContent, NMenu, NButton, NSpin, MenuOption } from 'naive-ui'
 import { useAuth } from '@/composables/useAuth'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const router = useRouter()
@@ -143,9 +144,6 @@ const collapsed = ref(false)
 const activeKey = ref('console')
 const credits = ref<number | null>(null)
 
-// Credits API URL
-const CREDITS_API_URL = 'https://credits.api.4aitek.com'
-
 const fetchCredits = async () => {
   if (!isLoggedIn.value) {
     credits.value = null
@@ -153,7 +151,7 @@ const fetchCredits = async () => {
   }
 
   try {
-    const res = await api.get(`${CREDITS_API_URL}/api/credits`)
+    const res = await api.get(`${config.creditsApiUrl}/api/credits`)
     
     if (res.data.success) {
       credits.value = res.data.credits
@@ -239,10 +237,7 @@ const handleLogout = async () => {
 }
 
 const openPopup = (url: string) => {
-  const AUTH_SPA_URL = import.meta.env.PROD
-    ? 'https://auth.4aitek.com'
-    : 'http://localhost:5175'
-  const loginUrl = `${AUTH_SPA_URL}/login?return=${encodeURIComponent(url)}`
+  const loginUrl = `${config.authOrigin}/login?return=${encodeURIComponent(url)}`
   const width = 1200
   const height = 800
   const left = (window.screen.width - width) / 2

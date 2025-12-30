@@ -139,6 +139,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NSpin, NSwitch, NIcon, useMessage } from 'naive-ui'
 import { PlayCircleOutline, FolderOpenOutline, InformationCircleOutline, ArrowBackOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const route = useRoute()
@@ -200,7 +201,7 @@ function formatStatus(status: string | null): string {
 async function loadResumes() {
   isLoading.value = true
   try {
-    const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes`)
+    const response = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/resumes`)
     const data = response.data
     if (data.success) {
       resumes.value = data.resumes
@@ -260,7 +261,7 @@ async function processResume(resume: Resume) {
   // Check for existing analysis first (unless override is enabled)
   if (!overrideExisting.value) {
     try {
-      const checkResponse = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/check-existing`)
+      const checkResponse = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/resumes/${resume.resume_id}/check-existing`)
       const checkData = checkResponse.data
       if (checkData.exists) {
         // Use existing results
@@ -285,7 +286,7 @@ async function runAnalysis(resume: Resume) {
   updateResumeStatus(resume.resume_id, 'processing')
   
   try {
-    const response = await api.post(`https://talent.api.4aitek.com/projects/${projectId.value}/resumes/${resume.resume_id}/analyze`, {
+    const response = await api.post(`${config.talentApiUrl}/projects/${projectId.value}/resumes/${resume.resume_id}/analyze`, {
       override: overrideExisting.value
     })
     const data = response.data
@@ -325,7 +326,7 @@ async function runAnalysis(resume: Resume) {
 function startTaskPolling(resumeId: number, taskId: string) {
   const pollInterval = window.setInterval(async () => {
     try {
-      const response = await api.get(`https://talent.api.4aitek.com/task-status/${taskId}`)
+      const response = await api.get(`${config.talentApiUrl}/task-status/${taskId}`)
       const data = response.data
       
       if (data.state === 'SUCCESS') {
@@ -371,7 +372,7 @@ function startPollingForExistingJobs() {
     }
     
     try {
-      const response = await api.get(`https://talent.api.4aitek.com/projects/${projectId.value}/check-processing-jobs`)
+      const response = await api.get(`${config.talentApiUrl}/projects/${projectId.value}/check-processing-jobs`)
       const data = response.data
       if (data.success && data.resumes) {
         // Update resume statuses

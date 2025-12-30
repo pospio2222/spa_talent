@@ -112,6 +112,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NSpin, NButton, useMessage } from 'naive-ui'
+import { config } from '@/config'
 import api from '@/utils/api'
 
 const router = useRouter()
@@ -139,7 +140,7 @@ onMounted(async () => {
 async function loadDashboard() {
   loading.value = true
   try {
-    const response = await api.get('https://talent.api.4aitek.com/candidates/dashboard')
+    const response = await api.get(`${config.talentApiUrl}/candidates/dashboard`)
     const data = response.data
     
     if (data.success) {

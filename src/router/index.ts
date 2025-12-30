@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import DashboardLayout from '@/components/DashboardLayout.vue'
+import { config } from '@/config'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -110,7 +111,7 @@ router.beforeEach(async (to, from, next) => {
 
   // Check auth and agreement status
   try {
-    const res = await fetch('https://login.api.4aitek.com/verify', {
+    const res = await fetch(`${config.authApiUrl}/verify`, {
       credentials: 'include'
     })
     
