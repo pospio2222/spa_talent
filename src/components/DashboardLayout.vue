@@ -49,7 +49,7 @@
               <!-- Profile, Settings, and Credits Icons -->
               <div class="user-actions" :class="{ 'collapsed': collapsed }">
                 <a 
-                  :href="`${config.authOrigin}/profile`"
+                  :href="`${config.authOrigin}/login?return=${encodeURIComponent(config.authOrigin + '/profile')}`"
                   target="_blank"
                   class="icon-link profile-link"
                   title="Profile"
@@ -57,7 +57,7 @@
                   <i class="fas fa-user"></i>
                 </a>
                 <a 
-                  :href="`${config.authOrigin}/settings`"
+                  :href="`${config.authOrigin}/login?return=${encodeURIComponent(config.authOrigin + '/settings')}`"
                   target="_blank"
                   class="icon-link settings-link"
                   title="Settings"
@@ -65,7 +65,7 @@
                   <i class="fas fa-cog"></i>
                 </a>
                 <a 
-                  :href="`${config.authOrigin}/credits`"
+                  :href="`${config.authOrigin}/login?return=${encodeURIComponent(config.authOrigin + '/credits')}`"
                   target="_blank"
                   class="icon-link credits-link-icon"
                   title="Purchase Credits"
