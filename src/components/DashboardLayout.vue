@@ -49,24 +49,24 @@
               <!-- Profile, Settings, and Credits Icons -->
               <div class="user-actions" :class="{ 'collapsed': collapsed }">
                 <a 
-                  href="https://4aitek.com/profile"
-                  @click.prevent="openPopup('https://4aitek.com/profile')"
+                  :href="`${config.authOrigin}/profile`"
+                  target="_blank"
                   class="icon-link profile-link"
                   title="Profile"
                 >
                   <i class="fas fa-user"></i>
                 </a>
                 <a 
-                  href="https://4aitek.com/settings"
-                  @click.prevent="openPopup('https://4aitek.com/settings')"
+                  :href="`${config.authOrigin}/settings`"
+                  target="_blank"
                   class="icon-link settings-link"
                   title="Settings"
                 >
                   <i class="fas fa-cog"></i>
                 </a>
                 <a 
-                  href="https://4aitek.com/credits"
-                  @click.prevent="openPopup('https://4aitek.com/credits')"
+                  :href="`${config.authOrigin}/credits`"
+                  target="_blank"
                   class="icon-link credits-link-icon"
                   title="Purchase Credits"
                 >
@@ -234,19 +234,6 @@ const handleLogin = () => {
 
 const handleLogout = async () => {
   await logout()
-}
-
-const openPopup = (url: string) => {
-  const loginUrl = `${config.authOrigin}/login?return=${encodeURIComponent(url)}`
-  const width = 1200
-  const height = 800
-  const left = (window.screen.width - width) / 2
-  const top = (window.screen.height - height) / 2
-  window.open(
-    loginUrl,
-    '_blank',
-    `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-  )
 }
 
 // Watch route changes
