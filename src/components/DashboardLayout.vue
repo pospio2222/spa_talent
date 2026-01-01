@@ -106,14 +106,30 @@
             <n-spin size="large" />
           </div>
           <div v-else-if="!isLoggedIn" class="auth-required">
-            <div class="wave-background">
-              <div class="air air1"></div>
-              <div class="air air2"></div>
-              <div class="air air3"></div>
-              <div class="air air4"></div>
+            <!-- Animated Wave Background -->
+            <div class="air air1"></div>
+            <div class="air air2"></div>
+            <div class="air air3"></div>
+            <div class="air air4"></div>
+            
+            <!-- Grid + nodes overlay -->
+            <div class="hero-tech-overlay" aria-hidden="true">
+              <div class="hero-nodes">
+                <span class="node n1"></span>
+                <span class="node n2"></span>
+                <span class="node n3"></span>
+                <span class="node n4"></span>
+                <span class="node n5"></span>
+                <span class="node n6"></span>
+                <span class="link l1"></span>
+                <span class="link l2"></span>
+                <span class="link l3"></span>
+                <span class="link l4"></span>
+              </div>
             </div>
+            
             <div class="auth-card">
-              <h1 class="auth-title">Authentication Required</h1>
+              <h1 class="auth-title">Login Required</h1>
               <p class="auth-message">Please log in to access T4LENT features.</p>
               <button class="auth-login-btn" @click="handleLogin">
                 <i class="fas fa-arrow-right"></i>
@@ -421,24 +437,14 @@ updateActiveKey()
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   overflow: hidden;
   padding: 0;
   margin: -16px;
 }
 
-.wave-background {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .auth-required .air {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -446,11 +452,11 @@ updateActiveKey()
   background: url(https://1.bp.blogspot.com/-xQUc-TovqDk/XdxogmMqIRI/AAAAAAAACvI/AizpnE509UMGBcTiLJ58BC6iViPYGYQfQCLcBGAsYHQ/s1600/wave.png);
   background-size: 1000px 100px;
   pointer-events: none;
+  z-index: 0;
 }
 
 .auth-required .air.air1 {
   animation: wave 30s linear infinite;
-  z-index: 0;
   opacity: 1;
   animation-delay: 0s;
   bottom: 0;
@@ -458,7 +464,6 @@ updateActiveKey()
 
 .auth-required .air.air2 {
   animation: wave2 15s linear infinite;
-  z-index: 0;
   opacity: 0.5;
   animation-delay: -5s;
   bottom: 10px;
@@ -466,7 +471,6 @@ updateActiveKey()
 
 .auth-required .air.air3 {
   animation: wave 30s linear infinite;
-  z-index: 0;
   opacity: 0.2;
   animation-delay: -2s;
   bottom: 15px;
@@ -474,27 +478,96 @@ updateActiveKey()
 
 .auth-required .air.air4 {
   animation: wave2 5s linear infinite;
-  z-index: 0;
   opacity: 0.7;
   animation-delay: -5s;
   bottom: 20px;
 }
 
 @keyframes wave {
-  0% {
-    background-position-x: 0px;
-  }
-  100% {
-    background-position-x: 1000px;
-  }
+  0% { background-position-x: 0px; }
+  100% { background-position-x: 1000px; }
 }
 
 @keyframes wave2 {
-  0% {
-    background-position-x: 0px;
-  }
-  100% {
-    background-position-x: -1000px;
+  0% { background-position-x: 0px; }
+  100% { background-position-x: -1000px; }
+}
+
+/* Grid + nodes overlay */
+.hero-tech-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-tech-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  opacity: .64;
+  background:
+    linear-gradient(to right, rgba(255,255,255,.22) 1.2px, transparent 1.2px),
+    linear-gradient(to bottom, rgba(255,255,255,.22) 1.2px, transparent 1.2px),
+    linear-gradient(to right, rgba(255,255,255,.10) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.10) 1px, transparent 1px);
+  background-size: 110px 110px, 110px 110px, 28px 28px, 28px 28px;
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 0%, black 78%, transparent 98%);
+  mask-image: radial-gradient(circle at 50% 35%, black 0%, black 78%, transparent 98%);
+  mix-blend-mode: screen;
+}
+
+.hero-tech-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.22), transparent 60%);
+  opacity: .22;
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 0%, black 70%, transparent 90%);
+  mask-image: radial-gradient(circle at 50% 35%, black 0%, black 70%, transparent 90%);
+}
+
+.hero-nodes {
+  position: absolute;
+  inset: 0;
+  opacity: .30;
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 0%, black 68%, transparent 92%);
+  mask-image: radial-gradient(circle at 50% 35%, black 0%, black 68%, transparent 92%);
+}
+
+.hero-nodes .node {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.90);
+  box-shadow: 0 0 26px rgba(147,197,253,.70);
+  opacity: .70;
+}
+
+.hero-nodes .link {
+  position: absolute;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.70), transparent);
+  opacity: .55;
+  transform-origin: left center;
+}
+
+.node.n1 { left: 16%; top: 22%; }
+.node.n2 { left: 34%; top: 38%; }
+.node.n3 { left: 58%; top: 26%; }
+.node.n4 { left: 74%; top: 44%; }
+.node.n5 { left: 28%; top: 62%; }
+.node.n6 { left: 62%; top: 62%; }
+
+.link.l1 { left: 16%; top: 22%; width: 220px; transform: rotate(18deg); }
+.link.l2 { left: 34%; top: 38%; width: 260px; transform: rotate(-10deg); }
+.link.l3 { left: 58%; top: 26%; width: 240px; transform: rotate(12deg); }
+.link.l4 { left: 28%; top: 62%; width: 360px; transform: rotate(0deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .air {
+    animation: none !important;
   }
 }
 
@@ -527,7 +600,7 @@ updateActiveKey()
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
