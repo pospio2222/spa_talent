@@ -245,6 +245,9 @@ async function handleUpload() {
     
     if (data.success && data.task_id) {
       message.success('Resume upload started')
+      // Store file names for status display
+      const fileNames = selectedFiles.value.map(f => f.name)
+      sessionStorage.setItem(`upload_files_${data.task_id}`, JSON.stringify(fileNames))
       // Navigate to waiting page
       router.push(`/upload-resumes-waiting/${projectId.value}/${data.task_id}`)
     } else {
