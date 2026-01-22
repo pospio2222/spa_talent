@@ -87,7 +87,7 @@
                 <th>Status</th>
                 <th>Score</th>
                 <th>Results</th>
-                <th>Delete</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
