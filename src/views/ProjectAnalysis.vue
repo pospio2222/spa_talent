@@ -87,6 +87,7 @@
                 <th>Status</th>
                 <th>Score</th>
                 <th>Results</th>
+                <th>Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -124,6 +125,15 @@
                   </n-button>
                   <span v-else>-</span>
                 </td>
+                <td class="link-cell">
+                  <button 
+                    @click="confirmDeleteResume(resume.resume_id, resume.filename)" 
+                    class="cell-link delete"
+                    title="Delete Resume"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -136,7 +146,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NCard, NButton, NSpin, NSwitch, NIcon, useMessage } from 'naive-ui'
+import { NCard, NButton, NSpin, NSwitch, NIcon, useMessage, useDialog } from 'naive-ui'
 import { PlayCircleOutline, FolderOpenOutline, InformationCircleOutline, ArrowBackOutline } from '@vicons/ionicons5'
 import PageBanner from '@/components/PageBanner.vue'
 import { config } from '@/config'
@@ -145,6 +155,7 @@ import api from '@/utils/api'
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const dialog = useDialog()
 
 interface Resume {
   resume_id: number
@@ -455,6 +466,33 @@ function goBack() {
   router.push('/projects')
 }
 
+function confirmDeleteResume(resumeId: number, filename: string) {
+  dialog.warning({
+    title: 'Delete Resume',
+    content: `Are you sure you want to delete "${filename}"? This action cannot be undone and will delete all associated analysis data.`,
+    positiveText: 'Delete',
+    negativeText: 'Cancel',
+    onPositiveClick: () => deleteResume(resumeId)
+  })
+}
+
+async function deleteResume(resumeId: number) {
+  try {
+    const response = await api.post(`${config.talentApiUrl}/projects/${projectId.value}/resumes/${resumeId}/delete`)
+    const data = response.data
+
+    if (data.success) {
+      message.success('Resume deleted successfully')
+      resumes.value = resumes.value.filter(r => r.resume_id !== resumeId)
+    } else {
+      throw new Error(data.message || 'Failed to delete resume')
+    }
+  } catch (err: any) {
+    console.error('Error deleting resume:', err)
+    message.error(err.message || 'Failed to delete resume')
+  }
+}
+
 onMounted(() => {
   loadResumes()
 })
@@ -660,5 +698,43 @@ onUnmounted(() => {
 .no-resumes p {
   font-size: 1rem;
   margin-bottom: 20px;
+}
+
+.link-cell {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 0 !important;
+  text-align: center;
+}
+
+.cell-link {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.cell-link.delete {
+  background-color: #FF6B6B;
+  color: white;
+}
+
+.cell-link.delete:hover {
+  background-color: #FF4757;
+  transform: scale(1.1);
+}
+
+.cell-link i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
 }
 </style>
