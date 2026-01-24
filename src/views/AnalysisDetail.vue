@@ -146,6 +146,9 @@
                   </div>
                 </n-button>
               </div>
+              <p class="download-info-note">
+                Documents are downloaded automatically after creation. AI-translated files are not stored—please keep the downloaded copy. Re-creating a translated document will consume AI credits again.
+              </p>
             </div>
           </div>
         </div>
@@ -492,6 +495,16 @@ onMounted(() => {
   font-weight: 400;
   margin-left: 24px;
   white-space: nowrap;
+}
+
+.download-info-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-top: 12px;
+  margin-bottom: 0;
+  text-align: left;
+  max-width: 500px;
 }
 
 .card-content {
