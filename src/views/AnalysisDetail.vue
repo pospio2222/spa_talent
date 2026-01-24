@@ -330,33 +330,50 @@ onMounted(() => {
 .card-header.download {
   background: #f8fafc;
   color: #1e293b;
-  padding: 14px 24px;
+  padding: 12px 24px;
   border-bottom: 1px solid #e2e8f0;
 }
 
 .download-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #334155;
+}
+
+.download-card .card-content {
+  padding: 1rem 1.5rem;
 }
 
 .download-buttons-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 450px;
+  gap: 8px;
+  max-width: 500px;
 }
 
 .download-btn {
   justify-content: flex-start !important;
   text-align: left;
-  height: 42px;
-  padding: 0 16px;
+  height: 36px;
+  padding: 0 12px;
+  background-color: #f1f5f9 !important;
+  border-radius: 6px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.download-btn:hover {
+  background-color: #e2e8f0 !important;
 }
 
 .download-btn :deep(.n-button__content) {
   flex: 1;
   display: flex;
+  font-size: 0.9rem;
+}
+
+.download-btn :deep(.n-button__icon) {
+  margin-right: 6px !important;
 }
 
 .btn-content {
@@ -370,7 +387,8 @@ onMounted(() => {
   font-size: 0.75rem;
   color: #94a3b8;
   font-weight: 400;
-  margin-left: 20px;
+  margin-left: 24px;
+  white-space: nowrap;
 }
 
 .card-content {
