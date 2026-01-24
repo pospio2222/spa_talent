@@ -84,6 +84,46 @@
               <div class="markdown-content" v-html="renderMarkdown(analysis.descriptive_str)"></div>
             </div>
           </div>
+
+          <!-- Download Card -->
+          <div class="card download-card">
+            <div class="card-header download">
+              <n-icon :component="CloudDownloadOutline" class="section-icon" />
+              <span class="download-title">Create & Download Document</span>
+            </div>
+            <div class="card-content">
+              <div class="download-buttons-list">
+                <n-button secondary class="download-btn">
+                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  Download DOCX (Original)
+                </n-button>
+                
+                <n-button secondary class="download-btn">
+                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <div class="btn-content">
+                    <span>Download DOCX (中文)</span>
+                    <span class="credit-info">1 AI credit</span>
+                  </div>
+                </n-button>
+                
+                <n-button secondary class="download-btn">
+                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <div class="btn-content">
+                    <span>Download DOCX (한글)</span>
+                    <span class="credit-info">1 AI credit</span>
+                  </div>
+                </n-button>
+                
+                <n-button secondary class="download-btn">
+                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <div class="btn-content">
+                    <span>Download DOCX (English)</span>
+                    <span class="credit-info">1 AI credit</span>
+                  </div>
+                </n-button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div v-else-if="!isLoading && error" class="error-container">
@@ -103,7 +143,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { NSpin, NButton, NIcon, useMessage } from 'naive-ui'
 import { 
   InformationCircleOutline, DocumentTextOutline, 
-  GridOutline, ReaderOutline, CopyOutline, WarningOutline 
+  GridOutline, ReaderOutline, CopyOutline, WarningOutline,
+  CloudDownloadOutline
 } from '@vicons/ionicons5'
 import { marked } from 'marked'
 import { config } from '@/config'
@@ -284,6 +325,52 @@ onMounted(() => {
 
 .card-header.descriptive {
   background: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
+}
+
+.card-header.download {
+  background: #f8fafc;
+  color: #1e293b;
+  padding: 14px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.download-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.download-buttons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 450px;
+}
+
+.download-btn {
+  justify-content: flex-start !important;
+  text-align: left;
+  height: 42px;
+  padding: 0 16px;
+}
+
+.download-btn :deep(.n-button__content) {
+  flex: 1;
+  display: flex;
+}
+
+.btn-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.credit-info {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 400;
+  margin-left: 20px;
 }
 
 .card-content {
