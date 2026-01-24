@@ -2,11 +2,8 @@
   <div class="page-container">
     <PageBanner
       title="Manage Projects"
+      subtitle="AI-powered evaluation of resumes in EN, 中文, and 한국어"
     />
-    <div class="custom-subtitle">
-      <i class="fas fa-sparkles"></i>
-      <span>AI-powered evaluation of resumes in EN, 中文, and 한국어</span>
-    </div>
 
     <div class="content-wrapper">
       <!-- Create New Project Button -->
@@ -272,24 +269,6 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.custom-subtitle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #3b82f6;
-  padding: 0.5rem 2rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-}
-
-.custom-subtitle i {
-  font-size: 0.875rem;
-  opacity: 0.8;
-  color: #6366f1;
 }
 
 .content-wrapper {
