@@ -142,7 +142,6 @@ import {
 import PageBanner from '@/components/PageBanner.vue'
 import { config } from '@/config'
 import api from '@/utils/api'
-import { createNormalizedFile } from '@/utils/fileHelpers'
 
 const route = useRoute()
 const router = useRouter()
@@ -234,8 +233,8 @@ async function handleUpload() {
   try {
     const formData = new FormData()
     selectedFiles.value.forEach(file => {
-      const normalizedFile = createNormalizedFile(file)
-      formData.append('resumes', normalizedFile)
+      // Use original file directly - backend handles filename storage in Redis
+      formData.append('resumes', file)
     })
 
     const response = await api.post(`${config.talentApiUrl}/projects/${projectId.value}/upload-resumes`, formData, {

@@ -121,7 +121,6 @@ import type { FormInst, FormRules, UploadFileInfo } from 'naive-ui'
 import PageBanner from '@/components/PageBanner.vue'
 import { config } from '@/config'
 import api from '@/utils/api'
-import { createNormalizedFile } from '@/utils/fileHelpers'
 
 const router = useRouter()
 const message = useMessage()
@@ -207,10 +206,11 @@ async function handleSubmit() {
     formPayload.append('position_category', formData.value.position_category)
     formPayload.append('position_title', formData.value.position_title)
     formPayload.append('description', formData.value.description)
-    formPayload.append('jd_file', createNormalizedFile(formData.value.jd_file!))
+    // Use original file directly - backend handles filename storage in Redis
+    formPayload.append('jd_file', formData.value.jd_file!)
     
     if (formData.value.cultural_fit_file) {
-      formPayload.append('cultural_fit_file', createNormalizedFile(formData.value.cultural_fit_file))
+      formPayload.append('cultural_fit_file', formData.value.cultural_fit_file)
     }
 
     const response = await api.post(`${config.talentApiUrl}/projects/create`, formPayload, {
