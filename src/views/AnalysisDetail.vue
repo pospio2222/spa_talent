@@ -113,8 +113,8 @@
                 >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
-                    <span>Download translated DOCX</span>
-                    <span class="credit-info">1 AI credit · one-time AI translation</span>
+                    <span>Download translated DOCX (中文)</span>
+                    <span class="credit-info">1 AI credit · one-time</span>
                   </div>
                 </n-button>
                 
@@ -127,8 +127,8 @@
                 >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
-                    <span>Download translated DOCX</span>
-                    <span class="credit-info">1 AI credit · one-time AI translation</span>
+                    <span>Download translated DOCX (한글)</span>
+                    <span class="credit-info">1 AI credit · one-time</span>
                   </div>
                 </n-button>
                 
@@ -141,8 +141,8 @@
                 >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
-                    <span>Download translated DOCX</span>
-                    <span class="credit-info">1 AI credit · one-time AI translation</span>
+                    <span>Download translated DOCX (English)</span>
+                    <span class="credit-info">1 AI credit · one-time</span>
                   </div>
                 </n-button>
               </div>
