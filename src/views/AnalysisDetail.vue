@@ -209,6 +209,8 @@ const analysisId = computed(() => route.params.analysisId as string)
 const analysis = ref<Analysis | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+const isExporting = ref(false)
+const exportLang = ref('')
 
 const pageTitle = computed(() => {
   if (analysis.value) {
