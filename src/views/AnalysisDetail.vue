@@ -93,12 +93,24 @@
             </div>
             <div class="card-content">
               <div class="download-buttons-list">
-                <n-button secondary class="download-btn">
+                <n-button 
+                  secondary 
+                  class="download-btn" 
+                  @click="handleDownload('original')"
+                  :loading="isExporting && exportLang === 'original'"
+                  :disabled="isExporting"
+                >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   Download DOCX (Original)
                 </n-button>
                 
-                <n-button secondary class="download-btn">
+                <n-button 
+                  secondary 
+                  class="download-btn" 
+                  @click="handleDownload('Chinese')"
+                  :loading="isExporting && exportLang === 'Chinese'"
+                  :disabled="isExporting"
+                >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (中文)</span>
@@ -106,7 +118,13 @@
                   </div>
                 </n-button>
                 
-                <n-button secondary class="download-btn">
+                <n-button 
+                  secondary 
+                  class="download-btn" 
+                  @click="handleDownload('Korean')"
+                  :loading="isExporting && exportLang === 'Korean'"
+                  :disabled="isExporting"
+                >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (한글)</span>
@@ -114,7 +132,13 @@
                   </div>
                 </n-button>
                 
-                <n-button secondary class="download-btn">
+                <n-button 
+                  secondary 
+                  class="download-btn" 
+                  @click="handleDownload('English')"
+                  :loading="isExporting && exportLang === 'English'"
+                  :disabled="isExporting"
+                >
                   <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (English)</span>
@@ -247,6 +271,83 @@ async function copyContent(content: string | null) {
 
 function goBack() {
   router.back()
+}
+
+async function handleDownload(lang: string) {
+  if (isExporting.value) return
+  
+  isExporting.value = true
+  exportLang.value = lang
+  
+  try {
+    const formData = new FormData()
+    formData.append('target_lang', lang)
+    
+    const response = await api.post(`${config.talentApiUrl}/analysis/${analysisId.value}/export`, formData)
+    const data = response.data
+    
+    if (data.success) {
+      pollExportStatus(data.task_id)
+    } else {
+      message.error(data.message || 'Export failed')
+      isExporting.value = false
+    }
+  } catch (err: any) {
+    console.error('Export error:', err)
+    const errorMsg = err.response?.data?.detail || 'Insufficient credits or server error'
+    message.error(errorMsg)
+    isExporting.value = false
+  }
+}
+
+async function pollExportStatus(taskId: string) {
+  try {
+    const response = await api.get(`${config.talentApiUrl}/task-status/${taskId}`)
+    const data = response.data
+    
+    if (data.state === 'SUCCESS') {
+      const { s3_key, filename } = data.result
+      downloadFile(s3_key, filename)
+    } else if (data.state === 'FAILURE') {
+      message.error(data.error || 'Export failed')
+      isExporting.value = false
+    } else {
+      // Poll again after 2 seconds
+      setTimeout(() => pollExportStatus(taskId), 2000)
+    }
+  } catch (err) {
+    console.error('Polling error:', err)
+    message.error('Failed to check export status')
+    isExporting.value = false
+  }
+}
+
+async function downloadFile(s3Key: string, filename: string) {
+  try {
+    const response = await api.get(`${config.talentApiUrl}/exports/download-url`, {
+      params: { s3_key: s3Key }
+    })
+    const { download_url } = response.data
+    
+    if (download_url) {
+      // Trigger browser download
+      const link = document.createElement('a')
+      link.href = download_url
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      message.success('Download started')
+    } else {
+      throw new Error('No download URL returned')
+    }
+  } catch (err) {
+    console.error('Download error:', err)
+    message.error('Failed to generate download link')
+  } finally {
+    isExporting.value = false
+    exportLang.value = ''
+  }
 }
 
 onMounted(() => {
