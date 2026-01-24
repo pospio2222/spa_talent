@@ -94,31 +94,31 @@
             <div class="card-content">
               <div class="download-buttons-list">
                 <n-button secondary class="download-btn">
-                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   Download DOCX (Original)
                 </n-button>
                 
                 <n-button secondary class="download-btn">
-                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (中文)</span>
-                    <span class="credit-info">1 AI credit</span>
+                    <span class="credit-info">1 AI credit · one-time AI translation</span>
                   </div>
                 </n-button>
                 
                 <n-button secondary class="download-btn">
-                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (한글)</span>
-                    <span class="credit-info">1 AI credit</span>
+                    <span class="credit-info">1 AI credit · one-time AI translation</span>
                   </div>
                 </n-button>
                 
                 <n-button secondary class="download-btn">
-                  <template #icon><n-icon><DocumentTextOutline /></n-icon></template>
+                  <template #icon><n-icon size="16"><DocumentTextOutline /></n-icon></template>
                   <div class="btn-content">
                     <span>Download DOCX (English)</span>
-                    <span class="credit-info">1 AI credit</span>
+                    <span class="credit-info">1 AI credit · one-time AI translation</span>
                   </div>
                 </n-button>
               </div>
